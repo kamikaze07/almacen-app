@@ -17,7 +17,8 @@ services:
       - almacen-network
 
   php:
-    image: php:8.2-fpm
+    build:
+      context: ./docker/php
     container_name: almacen-php
     volumes:
       - ./backend:/var/www/html
