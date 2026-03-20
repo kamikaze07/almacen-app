@@ -1,0 +1,41 @@
+version: "3.9"
+
+services:
+  nginx:
+    image: nginx:alpine
+    container_name: almacen-nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./frontend:/usr/share/nginx/html
+      - ./backend:/var/www/html
+      - ./docker/nginx:/etc/nginx/conf.d
+    depends_on:
+      - php
+    networks:
+      - almacen-network
+
+  php:
+    image: php:8.2-fpm
+    container_name: almacen-php
+    volumes:
+      - ./backend:/var/www/html
+    networks:
+      - almacen-network
+
+  mariadb:
+    image: mariadb:11
+    container_name: almacen-db
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: almacen
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    networks:
+      - almacen-network
+
+networks:
+  almacen-network:
+
+volumes:
+  mariadb_data:
