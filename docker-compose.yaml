@@ -8,13 +8,14 @@ services:
     ports:
       - "80:80"
     volumes:
-      - ./frontend:/usr/share/nginx/html
+      - ./frontend:/var/www/html/frontend
       - ./backend:/var/www/html
       - ./docker/nginx:/etc/nginx/conf.d
     depends_on:
       - php
     networks:
       - almacen-network
+      
 
   php:
     build:
