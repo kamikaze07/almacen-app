@@ -8,8 +8,8 @@ services:
     ports:
       - "80:80"
     volumes:
-      - ./frontend:/var/www/html/frontend
-      - ./backend:/var/www/html
+      - ./frontend:/var/www/frontend
+      - ./backend:/var/www/backend
       - ./docker/nginx:/etc/nginx/conf.d
     depends_on:
       - php

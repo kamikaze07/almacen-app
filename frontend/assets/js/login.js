@@ -47,12 +47,13 @@
         btnText.textContent = 'Ingresando...';
 
         try {
-        const res = await fetch('http://localhost/api/auth/login.php', {
+        const res = await fetch('http://localhost/auth/login.php', {
             method: 'POST',
             headers: {
             'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ usuario, password })
+            credentials: 'include',
+            body: JSON.stringify({ username: usuario, password })
         });
 
         let data;
@@ -64,9 +65,7 @@
 
         if (!res.ok) throw new Error(data.error || 'Credenciales incorrectas');
 
-        localStorage.setItem('token', data.token);
-
-        window.location.href = '/frontend/dashboard.html';
+        window.location.href = '/index.html';
 
         } catch (err) {
         marcarError();
