@@ -47,6 +47,7 @@
                     </thead>
                     <tbody id="inventoryTable"></tbody>
                 </table>
+                <div id="pagination" class="flex justify-center mt-4 space-x-2"></div>
             </div>
 
         </main>
@@ -144,7 +145,7 @@
         });
     </script>
 
-    <script type="module" src="./assets/js/inventory.js"></script>
+    <script type="module" src="./assets/js/inventory.js" defer></script>
 
     <script type="module">
         import { checkAuth, setupLogout } from "/assets/js/core/auth.js";
