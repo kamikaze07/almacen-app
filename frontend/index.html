@@ -2,9 +2,182 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Almacén</title>
+  <title>Dashboard - Almacén</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#D32F2F'
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    .card {
+      background: #111827;
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 1rem;
+      padding: 1.5rem;
+      position: relative;
+      overflow: hidden;
+      transition: 0.2s;
+    }
+
+    .card:hover {
+      transform: scale(1.01);
+      box-shadow: 0 0 15px rgba(211,47,47,0.3);
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 4px;
+      height: 100%;
+      background: #D32F2F;
+    }
+
+    .label {
+      font-size: 0.875rem;
+      color: #9ca3af;
+    }
+
+    .value {
+      font-size: 1.875rem;
+      font-weight: bold;
+      color: #D32F2F;
+      margin-top: 0.5rem;
+    }
+
+    .sub {
+      font-size: 0.75rem;
+      margin-top: 0.25rem;
+    }
+  </style>
 </head>
-<body>
-  <h1>🔥 Almacén funcionando</h1>
+
+<body class="hidden bg-[#0f172a] text-white">
+
+  <div class="flex min-h-screen">
+
+    <!-- Sidebar -->
+    <aside class="w-64 bg-black/30 backdrop-blur border-r border-white/5 p-6 hidden md:flex flex-col">
+
+      <img src="./assets/logo.png" class="w-36 mb-10">
+
+      <nav class="flex flex-col h-full justify-between text-sm">
+
+        <!-- TOP -->
+        <div class="space-y-2">
+
+          <!-- Dashboard -->
+          <a href="/index.html" class="flex items-center gap-3 px-3 py-2 rounded-lg bg-white/5 text-white">
+            <span>🏠</span> Dashboard
+          </a>
+
+          <!-- Inventario -->
+          <a href="/inventario.html" class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-400 hover:bg-white/5 hover:text-white transition">
+            <span>📦</span> Inventario
+          </a>
+
+          <!-- Entradas -->
+          <a href="/entradas.html" class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-400 hover:bg-white/5 hover:text-white transition">
+            <span>⬆</span> Entradas
+          </a>
+
+          <!-- Salidas -->
+          <a href="/salidas.html" class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-400 hover:bg-white/5 hover:text-white transition">
+            <span>⬇</span> Salidas
+          </a>
+
+          <!-- Reportes -->
+          <a href="/reportes.html" class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-400 hover:bg-white/5 hover:text-white transition">
+            <span>📊</span> Reportes
+          </a>
+
+        </div>
+
+        <!-- BOTTOM -->
+        <div class="pt-6 border-t border-white/10">
+
+          <button id="logoutBtn"
+            class="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-red-400 hover:bg-red-500/10 transition">
+            <span>🚪</span> Cerrar sesión
+          </button>
+
+        </div>
+
+      </nav>
+
+    </aside>
+
+    <!-- Main -->
+    <main class="flex-1 p-6">
+
+      <!-- Topbar -->
+    <div class="flex justify-between items-center mb-10">
+
+      <div>
+        <h2 class="text-2xl font-semibold">Dashboard</h2>
+        <p class="text-sm text-gray-400">Resumen general del sistema</p>
+      </div>
+
+      <div class="text-right">
+        <p class="text-sm text-gray-400">Bienvenido</p>
+        <p id="userName" class="text-sm font-semibold text-white"></p>
+      </div>
+
+    </div>
+
+      <!-- Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+
+      <div class="card">
+        <p class="label">Stock total</p>
+        <h2 id="stockTotal" class="value text-4xl">--</h2>
+      </div>
+
+      <div class="card">
+        <p class="label">Entradas hoy</p>
+        <h2 id="entradasHoy" class="value text-4xl">--</h2>
+      </div>
+
+      <div class="card">
+        <p class="label">Salidas hoy</p>
+        <h2 id="salidasHoy" class="value text-4xl">--</h2>
+      </div>
+
+      <div class="card">
+        <p class="label">Alertas</p>
+        <h2 id="alertas" class="value text-4xl">--</h2>
+      </div>
+
+    </div>
+
+      <!-- Actividad -->
+    <div class="mt-10 bg-[#111827] border border-white/5 rounded-2xl p-6">
+
+      <h3 class="text-sm text-gray-400 mb-6">Actividad reciente</h3>
+
+      <ul id="actividad" class="space-y-4 text-sm">
+
+        <!-- JS lo llena -->
+
+      </ul>
+
+    </div>
+
+    </main>
+  </div>
+  <script src="./assets/js/auth.js"></script>
+  <script src="./assets/js/dashboard.js"></script>
+
 </body>
 </html>
