@@ -1,8 +1,4 @@
-document.addEventListener("DOMContentLoaded", async () => {
-  await checkAuth();
-});
-
-async function checkAuth() {
+export async function checkAuth() {
   try {
     const response = await fetch("/auth/me.php", {
       credentials: "include"
@@ -12,21 +8,20 @@ async function checkAuth() {
 
     const user = await response.json();
 
-    // 🔥 GUARDAR GLOBAL
     window.currentUser = user;
-
-    console.log("Usuario global:", window.currentUser);
-
-    document.body.classList.remove("hidden");
 
     window.dispatchEvent(new Event("authSuccess"));
 
+    return user;
+
   } catch (error) {
-    window.location.href = "/auth/login.html";
+    redirectToLogin();
   }
 }
 
-document.getElementById("logoutBtn")?.addEventListener("click", logout);
+export function setupLogout(buttonId = "logoutBtn") {
+  document.getElementById(buttonId)?.addEventListener("click", logout);
+}
 
 async function logout() {
   try {
@@ -35,13 +30,14 @@ async function logout() {
       credentials: "include"
     });
 
-    // limpiar estado
     window.currentUser = null;
-
-    // redirect
-    window.location.href = "/auth/login.html";
+    redirectToLogin();
 
   } catch (error) {
     console.error("Error al cerrar sesión", error);
   }
+}
+
+function redirectToLogin() {
+  window.location.href = "/auth/login.html";
 }

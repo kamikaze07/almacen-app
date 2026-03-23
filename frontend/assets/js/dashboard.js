@@ -1,6 +1,16 @@
+import { checkAuth, setupLogout } from "./core/auth.js";
+
+document.addEventListener("DOMContentLoaded", async () => {
+  await checkAuth();
+  document.body.classList.remove("hidden");
+});
+
+setupLogout();
+
+
 window.addEventListener("authSuccess", () => {
-  loadDashboard();
   renderUser();
+  loadDashboard();
 });
 
 function renderUser() {
