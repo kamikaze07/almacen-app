@@ -47,7 +47,7 @@
         btnText.textContent = 'Ingresando...';
 
         try {
-        const res = await fetch('http://localhost/auth/login.php', {
+        const res = await fetch('/auth/login.php', {
             method: 'POST',
             headers: {
             'Content-Type': 'application/json'

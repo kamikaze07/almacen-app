@@ -6,11 +6,11 @@ services:
     image: nginx:alpine
     container_name: almacen-nginx
     ports:
-      - "80:80"
+      - "80:80"  # Exponer puerto 80
     volumes:
       - ./frontend:/var/www/frontend
       - ./backend:/var/www/backend
-      - ./docker/nginx:/etc/nginx/conf.d
+      - ./docker/nginx:/etc/nginx/conf.d  # Configuración personalizada de nginx
     depends_on:
       - php
     networks:
@@ -23,6 +23,8 @@ services:
     container_name: almacen-php
     volumes:
       - ./backend:/var/www/html
+    ports:
+      - "9000:9000"  # Exponer PHP-FPM en el puerto 9000
     networks:
       - almacen-network
 

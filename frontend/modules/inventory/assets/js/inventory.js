@@ -13,7 +13,7 @@ let currentProducts = [];
 async function loadInventory(page = 1) {
     try {
         const res = await fetch(
-            `http://localhost/public/products.php?page=${page}&limit=${limit}&search=${encodeURIComponent(currentSearch)}`
+            `/public/products.php?page=${page}&limit=${limit}&search=${encodeURIComponent(currentSearch)}`
         );
 
         const result = await res.json();
@@ -220,7 +220,7 @@ document.getElementById("productForm").addEventListener("submit", async (e) => {
 
         if (editingId) {
             // ✏️ UPDATE
-            await fetch("http://localhost/public/products.php", {
+            await fetch("/public/products.php", {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json"
@@ -229,7 +229,7 @@ document.getElementById("productForm").addEventListener("submit", async (e) => {
             });
         } else {
             // ➕ CREATE
-            await fetch("http://localhost/public/products.php", {
+            await fetch("/public/products.php", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -267,7 +267,7 @@ async function deleteProduct(id) {
     if (!confirm("¿Eliminar producto?")) return;
 
     try {
-        await fetch(`http://localhost/public/products.php?id=${id}`, {
+        await fetch(`/public/products.php?id=${id}`, {
             method: "DELETE"
         });
 

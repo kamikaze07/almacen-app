@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Salida de Productos</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#D32F2F',
+            secondary: '#7B1FA2'
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Establecemos que el modal debe ocupar toda la pantalla */
+    #modal-salida {
+    position: fixed;  /* Asegura que se posicione respecto a la pantalla */
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: none;  /* Lo dejamos inicialmente oculto */
+    justify-content: center;
+    align-items: center;  /* Centrado usando flexbox */
+    background-color: rgba(0, 0, 0, 0.6);  /* Fondo semitransparente */
+    z-index: 9999; /* Asegura que esté por encima de otros elementos */
+    }
+
+    /* Cuando se abre el modal, lo mostramos */
+    #modal-salida.open {
+    display: flex;
+    }
+
+    /* Animación de desvanecimiento */
+    .modal-enter-active, .modal-leave-active {
+    transition: opacity 0.3s;
+    }
+
+    .modal-enter, .modal-leave-to {
+    opacity: 0;
+    }
+  </style>
+</head>
+
+<body class="bg-[#0f172a] text-white hidden">
+
+  <div class="flex min-h-screen">
+    <!-- Sidebar -->
+    <aside id="sidebar"></aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 p-6">
+      <h1 class="text-2xl font-semibold mb-6">Salida de Productos</h1>
+
+      <!-- Calendario de Selección de Fecha -->
+      <div class="mb-6">
+        <label for="fecha" class="block text-sm mb-2">Selecciona una Fecha</label>
+        <input type="date" id="fecha" name="fecha" class="p-3 bg-gray-800 text-white border border-gray-700 rounded-lg w-full" />
+      </div>
+
+      <!-- Botón Nueva Salida -->
+      <button id="nueva-salida-btn" class="px-4 py-2 bg-blue-600 rounded-lg mb-6">Nueva Salida</button>
+
+      <!-- Tabla de Salidas -->
+      <div class="mb-6">
+        <table class="min-w-full bg-gray-900 text-gray-400 rounded-lg overflow-hidden border border-gray-800">
+          <thead class="bg-gray-800 text-sm">
+            <tr>
+              <th class="p-3">Folio</th>
+              <th class="p-3">Fecha</th>
+              <th class="p-3">Producto(s)</th>
+              <th class="p-3">Unidad/Destino</th>
+              <th class="p-3">Entrega</th>
+              <th class="p-3">Solicita</th>
+              <th class="p-3 text-right">Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tabla-salidas">
+            <!-- Las salidas se cargarán aquí -->
+          </tbody>
+        </table>
+      </div>
+
+        <!-- Modal de Nueva Salida -->
+    <div id="modal-salida" class="fixed inset-0 bg-black/60 hidden items-center justify-center z-50">
+        <div class="bg-gray-900 w-full max-w-3xl rounded-xl p-6 border border-gray-800">
+            <div class="flex justify-between items-center mb-4">
+            <h2 class="text-lg font-semibold">Nueva Salida de Productos</h2>
+            <button id="close-modal" class="text-gray-400 hover:text-white">✖</button>
+            </div>
+
+            <!-- Formulario de Salida -->
+            <form id="form-salida-productos" class="space-y-4">
+            <!-- Producto con autocompletado -->
+            <div>
+                <label for="producto" class="block text-sm text-gray-300">Producto</label>
+                <input type="text" id="producto" name="producto" placeholder="Buscar producto..." class="w-full p-3 bg-gray-800 text-white border border-gray-700 rounded-lg focus:ring-2 focus:ring-primary" oninput="autoCompleteProduct()" />
+                <div id="product-suggestions" class="bg-gray-800 text-white mt-2 rounded-lg hidden"></div>
+            </div>
+
+            <!-- Tabla de productos seleccionados -->
+            <div class="overflow-x-auto max-h-60 overflow-y-auto">
+                <table id="product-table" class="min-w-full table-auto bg-gray-900 text-gray-400 rounded-lg overflow-hidden border border-gray-800">
+                <thead class="bg-gray-800 text-sm">
+                    <tr>
+                    <th class="p-3">Producto</th>
+                    <th class="p-3">Cantidad</th>
+                    <th class="p-3">Unidad/Destino</th>
+                    <th class="p-3 text-right">Eliminar</th>
+                    </tr>
+                </thead>
+                <tbody id="product-table-body">
+                    <!-- Los productos seleccionados se agregarán aquí -->
+                </tbody>
+                </table>
+            </div>
+
+            <!-- Campos para entregar y recibir -->
+            <div class="mt-4">
+                <label for="entrega" class="block text-sm text-gray-300">Entrega (Nombre)</label>
+                <input type="text" id="entrega" name="entrega" class="w-full p-3 bg-gray-800 text-white border border-gray-700 rounded-lg" />
+
+                <label for="recibe" class="block text-sm text-gray-300 mt-4">Recibe (Nombre)</label>
+                <input type="text" id="recibe" name="recibe" class="w-full p-3 bg-gray-800 text-white border border-gray-700 rounded-lg" />
+            </div>
+
+            <!-- Firmas -->
+            <div class="mt-6 flex gap-4">
+                <!-- Firma de quien entrega -->
+                <div class="w-1/2 mt-4">
+                <label for="firma-entrega" class="block text-sm text-gray-300">Firma de quien entrega</label>
+                <canvas id="firma-entrega" class="w-full bg-gray-700 border border-gray-600 rounded-lg h-32"></canvas>
+                </div>
+
+                <!-- Firma de quien recibe -->
+                <div class="w-1/2 mt-4">
+                <label for="firma-recibe" class="block text-sm text-gray-300">Firma de quien recibe</label>
+                <canvas id="firma-recibe" class="w-full bg-gray-700 border border-gray-600 rounded-lg h-32"></canvas>
+                </div>
+
+                <!-- Botones para limpiar y guardar firma -->
+                <div class="mt-2 flex gap-4">
+                <button type="button" id="clear-signature-entrega" class="px-4 py-2 bg-gray-600 rounded-lg text-white hover:bg-gray-500">Limpiar Firma (Entrega)</button>
+                <button type="button" id="clear-signature-recibe" class="px-4 py-2 bg-gray-600 rounded-lg text-white hover:bg-gray-500">Limpiar Firma (Recibe)</button>
+                </div>
+            </div>
+
+            <!-- Botones -->
+            <div class="mt-6 flex gap-4">
+                <button type="submit" class="px-4 py-2 bg-blue-600 rounded-lg text-white hover:bg-blue-700 transition">Guardar</button>
+                <button type="button" id="close-modal-btn" class="px-4 py-2 bg-gray-700 rounded-lg text-white hover:bg-gray-600 transition">Cancelar</button>
+            </div>
+            </form>
+        </div>
+    </div>
+    </main>
+  </div>
+
+  <script type="module">
+    import { checkAuth, setupLogout } from "/assets/js/core/auth.js";
+    // Importar el Sidebar desde la ruta correcta
+    import { renderSidebar } from "/assets/js/components/sidebar.js";
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      await checkAuth();
+
+      // Insertar el sidebar en el contenedor
+      document.getElementById('sidebar').innerHTML = renderSidebar();
+
+      setupLogout();
+      document.body.classList.remove("hidden");
+    });
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
+  <!-- Vinculación al archivo JS de Salida de Productos -->
+  <script type="module" src="/modules/salidas/assets/js/salida-productos.js"></script>
+
+</body>
+</html>

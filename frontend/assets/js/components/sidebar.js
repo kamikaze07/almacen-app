@@ -26,7 +26,7 @@ export function renderSidebar() {
                     ⬆ Entradas
                 </a>
 
-                <a href="#" class="block px-3 py-2 rounded hover:bg-gray-800">
+                <a href="/modules/salidas/index.html" class="block px-3 py-2 rounded hover:bg-gray-800">
                     ⬇ Salidas
                 </a>
 
