@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Requisiciones</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#D32F2F',
+            secondary: '#7B1FA2'
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    #modal-requisicion {
+      position: fixed;
+      inset: 0;
+      display: none;
+      justify-content: center;
+      align-items: center;
+      background-color: rgba(0,0,0,0.6);
+      z-index: 9999;
+    }
+
+    #modal-requisicion.open {
+      display: flex;
+    }
+  </style>
+</head>
+
+<body class="bg-[#0f172a] text-white hidden">
+
+<div class="flex min-h-screen">
+
+  <!-- Sidebar -->
+  <aside id="sidebar"></aside>
+
+  <!-- Main -->
+  <main class="flex-1 p-6">
+
+    <h1 class="text-2xl font-semibold mb-6">Requisiciones</h1>
+
+    <!-- Fecha -->
+    <div class="mb-6">
+      <label class="block text-sm mb-2">Selecciona una Fecha</label>
+      <input type="date" id="fecha"
+        class="p-3 bg-gray-800 border border-gray-700 rounded-lg w-full" />
+    </div>
+
+    <!-- Botón -->
+    <button id="nueva-requisicion-btn"
+      class="px-4 py-2 bg-blue-600 rounded-lg mb-6">
+      Nueva Requisición
+    </button>
+
+    <!-- Tabla -->
+    <table class="min-w-full bg-gray-900 text-gray-400 rounded-lg border border-gray-800">
+      <thead class="bg-gray-800 text-sm">
+        <tr>
+          <th class="p-3">Folio</th>
+          <th class="p-3">Fecha</th>
+          <th class="p-3">Producto(s)</th>
+          <th class="p-3">Cantidad</th>
+          <th class="p-3">Destino</th>
+          <th class="p-3">Solicita</th>
+          <th class="p-3 text-right">Acciones</th>
+        </tr>
+      </thead>
+      <tbody id="tabla-requisiciones"></tbody>
+    </table>
+
+    <!-- MODAL -->
+    <div id="modal-requisicion">
+      <div class="bg-gray-900 w-full max-w-3xl rounded-xl p-6 border border-gray-800">
+
+        <div class="flex justify-between mb-4">
+          <h2 class="font-semibold">Nueva Requisición</h2>
+          <button id="close-modal">✖</button>
+        </div>
+
+        <form id="form-requisicion" class="space-y-4">
+
+          <!-- Producto -->
+          <input id="producto" placeholder="Buscar producto..."
+            class="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg" />
+
+          <div id="product-suggestions" class="hidden bg-gray-800 mt-2 rounded"></div>
+
+          <!-- Tabla productos -->
+          <table class="w-full text-sm border border-gray-800">
+            <tbody id="product-table-body"></tbody>
+          </table>
+
+          <!-- Datos -->
+          <input id="entrega" placeholder="Solicita"
+            class="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg" />
+
+          <!-- Firma -->
+          <canvas id="firma-entrega"
+            class="w-full h-32 bg-gray-700 rounded-lg"></canvas>
+
+          <button type="button" id="clear-signature-entrega"
+            class="px-4 py-2 bg-gray-600 rounded-lg">
+            Limpiar firma
+          </button>
+
+          <!-- Botones -->
+          <div class="flex gap-4">
+            <button id="guardar-requisicion-btn"
+              class="px-4 py-2 bg-blue-600 rounded-lg">
+              Guardar
+            </button>
+
+            <button type="button" id="close-modal-btn"
+              class="px-4 py-2 bg-gray-700 rounded-lg">
+              Cancelar
+            </button>
+          </div>
+
+        </form>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script type="module">
+  import { checkAuth, setupLogout } from "/assets/js/core/auth.js";
+  import { renderSidebar } from "/assets/js/components/sidebar.js";
+
+  document.addEventListener('DOMContentLoaded', async () => {
+    await checkAuth();
+    document.getElementById('sidebar').innerHTML = renderSidebar("requisiciones");
+    setupLogout();
+    document.body.classList.remove("hidden");
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
+<script type="module" src="/modules/requisiciones/assets/js/requisiciones.js"></script>
+
+</body>
+</html>

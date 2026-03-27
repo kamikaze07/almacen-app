@@ -176,7 +176,7 @@
       await checkAuth();
 
       // Insertar el sidebar en el contenedor
-      document.getElementById('sidebar').innerHTML = renderSidebar();
+      document.getElementById('sidebar').innerHTML = renderSidebar("salidas");
 
       setupLogout();
       document.body.classList.remove("hidden");
