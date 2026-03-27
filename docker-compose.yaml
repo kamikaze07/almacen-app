@@ -23,6 +23,7 @@ services:
     container_name: almacen-php
     volumes:
       - ./backend:/var/www/html
+      - ./backend/firmas:/var/www/html/firmas
     ports:
       - "9000:9000"  # Exponer PHP-FPM en el puerto 9000
     networks:

@@ -67,6 +67,9 @@
 
       <!-- Botón Nueva Salida -->
       <button id="nueva-salida-btn" class="px-4 py-2 bg-blue-600 rounded-lg mb-6">Nueva Salida</button>
+      <button id="generate-pdf" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+    Generar PDF
+</button>
 
       <!-- Tabla de Salidas -->
       <div class="mb-6">
@@ -76,6 +79,7 @@
               <th class="p-3">Folio</th>
               <th class="p-3">Fecha</th>
               <th class="p-3">Producto(s)</th>
+              <th class="p-3">Cantidad</th>
               <th class="p-3">Unidad/Destino</th>
               <th class="p-3">Entrega</th>
               <th class="p-3">Solicita</th>
@@ -154,7 +158,7 @@
 
             <!-- Botones -->
             <div class="mt-6 flex gap-4">
-                <button type="submit" class="px-4 py-2 bg-blue-600 rounded-lg text-white hover:bg-blue-700 transition">Guardar</button>
+                <button id="guardar-salida-btn" type="submit" class="px-4 py-2 bg-blue-600 rounded-lg text-white hover:bg-blue-700 transition">Guardar</button>
                 <button type="button" id="close-modal-btn" class="px-4 py-2 bg-gray-700 rounded-lg text-white hover:bg-gray-600 transition">Cancelar</button>
             </div>
             </form>
@@ -178,7 +182,8 @@
       document.body.classList.remove("hidden");
     });
   </script>
-
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.5.31/dist/jspdf.plugin.autotable.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
   <!-- Vinculación al archivo JS de Salida de Productos -->
   <script type="module" src="/modules/salidas/assets/js/salida-productos.js"></script>
