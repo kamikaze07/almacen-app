@@ -32,7 +32,7 @@ export function renderSidebar(active = "") {
                     📋 Requisiciones
                 </a>
 
-                <a href="#" class="${linkClass('entradas')}">
+                <a href="/modules/entradas/index.html" class="${linkClass('entradas')}">
                     ⬆ Entradas
                 </a>
 
