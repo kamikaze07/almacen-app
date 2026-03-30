@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Entradas</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <link rel="stylesheet" href="./assets/css/entradas.css">
+</head>
+
+<body class="bg-[#0f172a] text-white hidden">
+
+<div class="flex min-h-screen">
+
+  <!-- Sidebar -->
+  <aside id="sidebar"></aside>
+
+  <!-- Main -->
+  <main class="flex-1 p-6">
+
+    <h1 class="text-2xl font-semibold mb-6">Entradas</h1>
+
+    <!-- Botón -->
+    <button id="nueva-entrada-btn"
+      class="px-4 py-2 bg-blue-600 rounded-lg mb-6">
+      Nueva Entrada
+    </button>
+
+    <!-- Tabla -->
+    <table class="w-full bg-gray-900 border border-gray-800 rounded-lg">
+      <thead class="bg-gray-800 text-sm">
+        <tr>
+          <th class="p-3 text-left">Folio</th>
+          <th class="p-3 text-left">Fecha</th>
+          <th class="p-3 text-left">Tipo</th>
+          <th class="p-3 text-left">Estado</th>
+          <th class="p-3 text-right">Acciones</th>
+        </tr>
+      </thead>
+      <tbody id="tabla-entradas"></tbody>
+    </table>
+
+    <!-- MODAL -->
+    <div id="modal-entrada" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center">
+
+      <div class="bg-gray-900 w-full max-w-4xl p-6 rounded-lg">
+
+        <div class="flex justify-between mb-4">
+          <h2>Nueva Entrada</h2>
+          <button id="close-modal">✖</button>
+        </div>
+
+        <!-- Tipo -->
+        <div class="mb-4">
+          <label>
+            <input type="radio" name="tipoEntrada" value="independiente" checked>
+            Entrada independiente
+          </label>
+
+          <label class="ml-4">
+            <input type="radio" name="tipoEntrada" value="requisicion">
+            Entrada con requisición
+          </label>
+        </div>
+
+        <!-- Dinámico -->
+        <div id="bloque-dinamico"></div>
+
+        <!-- Datos -->
+        <input id="entrega" placeholder="Entrega"
+          class="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg mt-4" />
+
+        <canvas id="firma-entrada"
+          class="w-full h-32 bg-gray-700 rounded-lg mt-4"></canvas>
+
+        <button id="guardar-entrada"
+          class="mt-4 px-4 py-2 bg-blue-600 rounded-lg">
+          Guardar
+        </button>
+
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script type="module">
+  import { checkAuth, setupLogout } from "/assets/js/core/auth.js";
+  import { renderSidebar } from "/assets/js/components/sidebar.js";
+
+  document.addEventListener('DOMContentLoaded', async () => {
+    await checkAuth();
+    document.getElementById('sidebar').innerHTML = renderSidebar("entradas");
+    setupLogout();
+    document.body.classList.remove("hidden");
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
+<script type="module" src="./assets/js/entradas.js"></script>
+
+</body>
+</html>
