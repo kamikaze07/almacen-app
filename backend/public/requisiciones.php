@@ -64,75 +64,38 @@ try {
         echo json_encode(["success" => true, "folio" => $folio]);
         exit;
     }
-
     // =========================
-    // 🟢 GET - LISTAR / DETALLE
+    // 📄 LISTADO
     // =========================
-    if ($method === 'GET') {
+    $fecha = $_GET['fecha'] ?? null;
 
-        $id = $_GET['id'] ?? null;
+    $where = "";
+    $params = [];
 
-        // =========================
-        // 🔍 DETALLE
-        // =========================
-        if ($id) {
-
-            // header
-            $stmt = $pdo->prepare("
-                SELECT id, folio, solicita_nombre, estatus
-                FROM requisiciones
-                WHERE id = :id
-            ");
-            $stmt->execute([':id' => $id]);
-            $req = $stmt->fetch(PDO::FETCH_ASSOC);
-
-            if (!$req) {
-                echo json_encode(["success" => false, "error" => "No encontrada"]);
-                exit;
-            }
-
-            // productos
-            $stmt = $pdo->prepare("
-                SELECT 
-                    rp.producto_id,
-                    rp.cantidad,
-                    p.name
-                FROM requisicion_productos rp
-                JOIN products p ON rp.producto_id = p.id
-                WHERE rp.requisicion_id = :id
-            ");
-
-            $stmt->execute([':id' => $id]);
-            $productos = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-            echo json_encode([
-                "success" => true,
-                "data" => [
-                    "id" => $req['id'],
-                    "folio" => $req['folio'],
-                    "estatus" => $req['estatus'],
-                    "productos" => $productos
-                ]
-            ]);
-            exit;
-        }
-
-        // =========================
-        // 📄 LISTADO
-        // =========================
-        $stmt = $pdo->query("
-            SELECT id, folio, estatus, created_at
-            FROM requisiciones
-            WHERE estatus IN ('pendiente','atendida parcialmente')
-            ORDER BY created_at DESC
-        ");
-
-        echo json_encode([
-            "success" => true,
-            "data" => $stmt->fetchAll(PDO::FETCH_ASSOC)
-        ]);
-        exit;
+    if ($fecha) {
+        $where = "WHERE DATE(created_at) = :fecha";
+        $params[':fecha'] = $fecha;
     }
+
+    $stmt = $pdo->prepare("
+        SELECT 
+            id,
+            folio,
+            solicita_nombre,
+            estatus,
+            created_at
+        FROM requisiciones
+        $where
+        ORDER BY created_at DESC
+    ");
+
+$stmt->execute($params);
+
+echo json_encode([
+    "success" => true,
+    "data" => $stmt->fetchAll(PDO::FETCH_ASSOC)
+]);
+exit;
 
     http_response_code(405);
     echo json_encode(["success" => false, "error" => "Método no permitido"]);

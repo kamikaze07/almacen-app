@@ -186,7 +186,11 @@ function renderTabla(data) {
     <tr class="border-b border-gray-800 hover:bg-gray-800">
       <td class="p-3">${r.folio}</td>
       <td class="p-3">${new Date(r.created_at).toLocaleDateString()}</td>
-      <td class="p-3">${r.solicita_nombre}</td>
+      <td class="p-3">${r.solicita_nombre || '-'}</td>
+
+      <td class="p-3">
+        ${getStatusBadge(r.estatus)}
+      </td>
 
       <td class="p-3 text-right flex justify-end gap-3">
         <button onclick="verDetalle(${r.id})">👁️</button>
@@ -194,6 +198,25 @@ function renderTabla(data) {
       </td>
     </tr>
   `).join("");
+}
+function getStatusBadge(status) {
+
+  switch (status) {
+    case 'pendiente':
+      return '<span class="bg-yellow-500 text-black px-2 py-1 rounded text-xs">Pendiente</span>';
+
+    case 'atendida':
+      return '<span class="bg-green-600 text-white px-2 py-1 rounded text-xs">Atendida</span>';
+
+    case 'cancelada':
+      return '<span class="bg-red-600 text-white px-2 py-1 rounded text-xs">Cancelada</span>';
+
+    case 'atendida parcialmente':
+      return '<span class="bg-blue-600 text-white px-2 py-1 rounded text-xs">Parcial</span>';
+
+    default:
+      return '<span class="bg-gray-500 text-white px-2 py-1 rounded text-xs">N/A</span>';
+  }
 }
 
 
