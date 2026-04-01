@@ -171,19 +171,43 @@ try {
     // ============================
     if ($method === 'GET' && !isset($_GET['id'])) {
 
-        $stmt = $pdo->query("
-            SELECT 
-                e.id,
-                e.folio,
-                e.fecha,
-                e.tipo_entrada,
-                e.firma_entrega,
-                e.firma_recibe,
-                COALESCE(r.estatus, 'N/A') AS estado
-            FROM entradas e
-            LEFT JOIN requisiciones r ON e.requisicion_id = r.id
-            ORDER BY e.id DESC
-        ");
+        $fecha = $_GET['fecha'] ?? null;
+
+        if ($fecha) {
+
+            $stmt = $pdo->prepare("
+                SELECT 
+                    e.id,
+                    e.folio,
+                    e.fecha,
+                    e.tipo_entrada,
+                    e.firma_entrega,
+                    e.firma_recibe,
+                    COALESCE(r.estatus, 'N/A') AS estado
+                FROM entradas e
+                LEFT JOIN requisiciones r ON e.requisicion_id = r.id
+                WHERE DATE(e.fecha) = :fecha
+                ORDER BY e.id DESC
+            ");
+
+            $stmt->execute([':fecha' => $fecha]);
+
+        } else {
+
+            $stmt = $pdo->query("
+                SELECT 
+                    e.id,
+                    e.folio,
+                    e.fecha,
+                    e.tipo_entrada,
+                    e.firma_entrega,
+                    e.firma_recibe,
+                    COALESCE(r.estatus, 'N/A') AS estado
+                FROM entradas e
+                LEFT JOIN requisiciones r ON e.requisicion_id = r.id
+                ORDER BY e.id DESC
+            ");
+        }
 
         echo json_encode([
             "success" => true,

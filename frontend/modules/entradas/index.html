@@ -26,6 +26,16 @@
       Nueva Entrada
     </button>
 
+    <div class="mb-4 flex gap-4 items-center">
+      <input type="date" id="filtro-fecha"
+        class="bg-gray-800 border border-gray-700 rounded-lg p-2"/>
+
+      <button onclick="cargarEntradas()"
+        class="px-3 py-2 bg-gray-700 rounded-lg">
+        Filtrar
+      </button>
+    </div>
+
     <!-- Tabla -->
     <table class="w-full bg-gray-900 border border-gray-800 rounded-lg">
       <thead class="bg-gray-800 text-sm">
@@ -122,6 +132,9 @@
   });
 </script>
 
+
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.5.31/dist/jspdf.plugin.autotable.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
 <script type="module" src="./assets/js/entradas.js"></script>
 

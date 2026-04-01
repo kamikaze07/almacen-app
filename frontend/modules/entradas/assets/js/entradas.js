@@ -6,6 +6,9 @@ let signaturePadRecibe;
 
 document.addEventListener('DOMContentLoaded', () => {
 
+    const hoy = new Date().toISOString().split('T')[0];
+    document.getElementById("filtro-fecha").value = hoy;
+
     const canvasEntrega = document.getElementById('firma-entrega');
     const canvasRecibe = document.getElementById('firma-recibe');
 
@@ -42,9 +45,17 @@ document.addEventListener('DOMContentLoaded', () => {
 // ===============================
 // 📄 LISTAR ENTRADAS
 // ===============================
-async function cargarEntradas() {
+window.cargarEntradas = async function() {
 
-  const res = await fetch('/public/entradas.php');
+  const fecha = document.getElementById("filtro-fecha")?.value;
+
+  let url = '/public/entradas.php';
+
+  if (fecha) {
+    url += `?fecha=${fecha}`;
+  }
+
+  const res = await fetch(url);
   const json = await res.json();
 
   const tbody = document.getElementById("tabla-entradas");
@@ -59,8 +70,8 @@ async function cargarEntradas() {
         <td class="p-3">${e.tipo_entrada}</td>
         <td class="p-3">${e.estado}</td>
         <td class="p-3 text-right space-x-2">
-        <button onclick="verEntrada(${e.id})" class="text-green-400">👁</button>
-        <button onclick="imprimirEntrada(${e.id})" class="text-blue-400">🖨</button>
+          <button onclick="verEntrada(${e.id})" class="text-green-400">👁</button>
+          <button onclick="imprimirEntrada(${e.id})" class="text-blue-400">🖨</button>
         </td>
       </tr>
     `;
@@ -312,72 +323,154 @@ document.getElementById("guardar-entrada").onclick = async () => {
 // ===============================
 // 🖨️ IMPRIMIR
 // ===============================
-window.imprimirEntrada = async (id) => {
+window.imprimirEntrada = async function(id) {
 
   const res = await fetch(`/public/entradas.php?id=${id}`);
   const { data } = await res.json();
 
-  let html = `
-    <html>
-    <head>
-      <title>Entrada ${data.folio}</title>
-      <style>
-        body { font-family: Arial; padding: 20px; }
-        h2 { margin-bottom: 5px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #000; padding: 8px; text-align: left; }
-        .firmas { margin-top: 60px; display: flex; justify-content: space-between; }
-        .firma { text-align: center; }
-        img { max-height: 80px; }
-      </style>
-    </head>
-    <body>
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
 
-      <h2>ENTRADA DE PRODUCTOS</h2>
-      <p><strong>Folio:</strong> ${data.folio}</p>
-      <p><strong>Fecha:</strong> ${data.fecha}</p>
-      <p><strong>Entrega:</strong> ${data.entrega_nombre}</p>
-      <p><strong>Recibe:</strong> ${data.recibe_nombre}</p>
+  const logo = await loadImage('/assets/logo.png');
 
-      <table>
-        <tr>
-          <th>Producto</th>
-          <th>Cantidad</th>
-        </tr>
-  `;
+  // ================= HEADER (IDÉNTICO A REQUISICIONES 🔥)
 
-  data.productos.forEach(p => {
-    html += `
-      <tr>
-        <td>${p.name}</td>
-        <td>${p.cantidad}</td>
-      </tr>
-    `;
+  doc.autoTable({
+    startY: 10,
+    theme: 'grid',
+    styles: {
+      fontSize: 7,
+      cellPadding: 1,
+      valign: 'middle'
+    },
+    columnStyles: {
+      0: { cellWidth: 30 }
+    },
+
+    body: [
+
+      [
+        { content: '', rowSpan: 5 },
+        { content: 'FLETES Y MATERIALES FORSIS, S.A. DE C.V.', colSpan: 4,
+          styles: { halign: 'center', textColor: [200,0,0], fontStyle: 'bold' }
+        }
+      ],
+
+      [
+        { content: 'Entrada de Material', colSpan: 4, styles: { halign: 'center' } }
+      ],
+
+      [
+        'FECHA',
+        new Date(data.fecha).toLocaleDateString(),
+        'PAG.',
+        '1 de 1'
+      ],
+
+      [
+        'REVISIÓN',
+        '0',
+        'CÓDIGO',
+        'FMF-FOR-ALM-001'
+      ],
+
+      [
+        'Entrega:',
+        data.entrega_nombre,
+        'Recibe:',
+        data.recibe_nombre
+      ]
+    ],
+
+    didDrawCell: function (dataCell) {
+
+      if (dataCell.row.index === 0 && dataCell.column.index === 0) {
+
+        const cell = dataCell.cell;
+        const size = Math.min(cell.width, cell.height) - 4;
+
+        doc.addImage(
+          logo,
+          'PNG',
+          cell.x + (cell.width - size) / 2,
+          cell.y + (cell.height - size) / 2,
+          size,
+          size
+        );
+      }
+    }
   });
 
-  html += `
-      </table>
+  // ================= FOLIO
 
-      <div class="firmas">
-        <div class="firma">
-          <img src="/${data.firma_entrega}" />
-          <p>Entrega</p>
-        </div>
+  doc.setFontSize(10);
+  doc.text(`Folio: ${data.folio}`, 10, doc.lastAutoTable.finalY + 10);
 
-        <div class="firma">
-          <img src="/${data.firma_recibe}" />
-          <p>Recibe</p>
-        </div>
-      </div>
+  // ================= TABLA PRODUCTOS
 
-    </body>
-    </html>
-  `;
+  const rows = data.productos.map(p => [
+    p.name,
+    p.cantidad
+  ]);
 
-  const win = window.open("", "", "width=900,height=700");
-  win.document.write(html);
-  win.document.close();
-  win.print();
+  doc.autoTable({
+    startY: doc.lastAutoTable.finalY + 20,
+    head: [['Producto', 'Cantidad']],
+    body: rows
+  });
+
+  // ================= CONTROL DE SALTO (CLAVE 🔥)
+
+  let y = doc.lastAutoTable.finalY + 30;
+
+  if (y > 250) {
+    doc.addPage();
+    y = 30;
+  }
+
+  // ================= FIRMAS
+
+  let firmaEntrega = null;
+  let firmaRecibe = null;
+
+  try {
+    const fileEntrega = data.firma_entrega?.split('/').pop();
+    if (fileEntrega) {
+      firmaEntrega = await loadImage(`/public/get-firma.php?file=${fileEntrega}`);
+    }
+  } catch (e) {
+    console.warn("Error firma entrega");
+  }
+
+  try {
+    const fileRecibe = data.firma_recibe?.split('/').pop();
+    if (fileRecibe) {
+      firmaRecibe = await loadImage(`/public/get-firma.php?file=${fileRecibe}`);
+    }
+  } catch (e) {
+    console.warn("Error firma recibe");
+  }
+
+  // ================= RENDER FIRMAS
+
+  if (firmaEntrega) {
+    doc.addImage(firmaEntrega, 'PNG', 20, y, 60, 20);
+  }
+  doc.text('Entrega', 35, y + 25);
+
+  if (firmaRecibe) {
+    doc.addImage(firmaRecibe, 'PNG', 120, y, 60, 20);
+  }
+  doc.text('Recibe', 135, y + 25);
+
+  // ================= EXPORTAR
+  const blobUrl = doc.output('bloburl');
+
+  const win = window.open(blobUrl);
+
+  win.onload = () => {
+    win.print();
+  };
 };
 
 
@@ -438,15 +531,18 @@ window.verEntrada = async (id) => {
 
   html += "</table>";
 
+  const fileEntrega = data.firma_entrega?.split('/').pop();
+  const fileRecibe = data.firma_recibe?.split('/').pop();
+
   html += `
     <div class="flex justify-between mt-6">
-      <div>
-        <img src="/${data.firma_entrega}" width="120"/>
-        <p class="text-sm text-center">Entrega</p>
+      <div class="text-center">
+        ${fileEntrega ? `<img src="/public/get-firma.php?file=${fileEntrega}" class="h-20 mx-auto"/>` : ''}
+        <p class="text-sm mt-2">Entrega</p>
       </div>
-      <div>
-        <img src="/${data.firma_recibe}" width="120"/>
-        <p class="text-sm text-center">Recibe</p>
+      <div class="text-center">
+        ${fileRecibe ? `<img src="/public/get-firma.php?file=${fileRecibe}" class="h-20 mx-auto"/>` : ''}
+        <p class="text-sm mt-2">Recibe</p>
       </div>
     </div>
   `;
@@ -458,3 +554,17 @@ window.verEntrada = async (id) => {
 window.cerrarPreview = () => {
   document.getElementById("modal-preview").classList.add("hidden");
 };
+
+// ============================
+// 🧠 HELPER IMÁGENES (OBLIGATORIO 🔥)
+// ============================
+async function loadImage(url) {
+  const res = await fetch(url);
+  const blob = await res.blob();
+
+  return new Promise(resolve => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result);
+    reader.readAsDataURL(blob);
+  });
+}
