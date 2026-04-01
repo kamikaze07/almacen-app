@@ -83,6 +83,29 @@ if ($method === 'DELETE') {
 
 try {
 
+    // =========================
+    // 🔍 BÚSQUEDA RÁPIDA (para entradas)
+    // =========================
+    if ($search !== '' && !isset($_GET['page'])) {
+
+        $stmt = $pdo->prepare("
+            SELECT id, name, sku
+            FROM products
+            WHERE name LIKE :search OR sku LIKE :search
+            LIMIT 10
+        ");
+
+        $stmt->execute([
+            ':search' => "%$search%"
+        ]);
+
+        echo json_encode([
+            "success" => true,
+            "data" => $stmt->fetchAll(PDO::FETCH_ASSOC)
+        ]);
+        exit;
+    }
+
     // 🧠 Filtro dinámico
     $where = "";
     $params = [];

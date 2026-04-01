@@ -21,7 +21,7 @@ try {
 
         $folio = "REQ-" . date("Ymd-His");
 
-        // 🖊️ Guardar firma en archivo
+        // guardar firma
         $firma = str_replace('data:image/png;base64,', '', $data['firma']);
         $firma = str_replace(' ', '+', $firma);
         $firmaData = base64_decode($firma);
@@ -33,7 +33,7 @@ try {
 
         $firmaPath = 'firmas/' . $nombreArchivo;
 
-        // HEADER
+        // header
         $stmt = $pdo->prepare("
             INSERT INTO requisiciones (folio, solicita_nombre, firma_solicita)
             VALUES (:folio, :solicita, :firma)
@@ -47,7 +47,7 @@ try {
 
         $requisicion_id = $pdo->lastInsertId();
 
-        // DETALLE
+        // detalle
         $stmtDetalle = $pdo->prepare("
             INSERT INTO requisicion_productos (requisicion_id, producto_id, cantidad)
             VALUES (:req, :prod, :cant)
@@ -66,26 +66,70 @@ try {
     }
 
     // =========================
-    // 🟢 GET - SOLO HEADER
+    // 🟢 GET - LISTAR / DETALLE
     // =========================
     if ($method === 'GET') {
 
-        $fecha = $_GET['fecha'] ?? null;
+        $id = $_GET['id'] ?? null;
 
-        $stmt = $pdo->prepare("
-            SELECT id, folio, created_at, solicita_nombre
+        // =========================
+        // 🔍 DETALLE
+        // =========================
+        if ($id) {
+
+            // header
+            $stmt = $pdo->prepare("
+                SELECT id, folio, solicita_nombre, estatus
+                FROM requisiciones
+                WHERE id = :id
+            ");
+            $stmt->execute([':id' => $id]);
+            $req = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$req) {
+                echo json_encode(["success" => false, "error" => "No encontrada"]);
+                exit;
+            }
+
+            // productos
+            $stmt = $pdo->prepare("
+                SELECT 
+                    rp.producto_id,
+                    rp.cantidad,
+                    p.name
+                FROM requisicion_productos rp
+                JOIN products p ON rp.producto_id = p.id
+                WHERE rp.requisicion_id = :id
+            ");
+
+            $stmt->execute([':id' => $id]);
+            $productos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            echo json_encode([
+                "success" => true,
+                "data" => [
+                    "id" => $req['id'],
+                    "folio" => $req['folio'],
+                    "estatus" => $req['estatus'],
+                    "productos" => $productos
+                ]
+            ]);
+            exit;
+        }
+
+        // =========================
+        // 📄 LISTADO
+        // =========================
+        $stmt = $pdo->query("
+            SELECT id, folio, estatus, created_at
             FROM requisiciones
-            WHERE DATE(created_at) = :fecha
+            WHERE estatus IN ('pendiente','atendida parcialmente')
             ORDER BY created_at DESC
         ");
 
-        $stmt->execute([':fecha' => $fecha]);
-
-        $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
         echo json_encode([
             "success" => true,
-            "data" => $data
+            "data" => $stmt->fetchAll(PDO::FETCH_ASSOC)
         ]);
         exit;
     }

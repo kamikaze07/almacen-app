@@ -261,118 +261,105 @@ window.cerrarFormato = function() {
 // ============================
 // 📄 PDF
 // ============================
-window.imprimirRequisicion = async function() {
+window.imprimirEntrada = async function(id) {
+
+  const res = await fetch(`/public/entradas.php?id=${id}`);
+  const { data } = await res.json();
 
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
 
-  const data = requisicionActual;
-  if (!data) return;
+  const logo = await loadImage('/assets/logo.png');
 
-  async function renderDocumento() {
+  // ================= HEADER (MISMO QUE REQUISICIONES)
 
-    // ================= HEADER FORMATO (IGUAL A SALIDAS)
+  doc.autoTable({
+    startY: 10,
+    theme: 'grid',
+    styles: {
+      fontSize: 7,
+      cellPadding: 1,
+      valign: 'middle'
+    },
+    columnStyles: {
+      0: { cellWidth: 30 }
+    },
 
-    const logo = await loadImage('/assets/logo.png');
+    body: [
 
-    doc.autoTable({
-      startY: 10,
-      theme: 'grid',
-      styles: {
-        fontSize: 7,
-        cellPadding: 1,
-        valign: 'middle'
-      },
-      columnStyles: {
-        0: { cellWidth: 30 }, // columna del logo
-      },
-
-      body: [
-
-        // FILA 1
-        [
-          { content: '', rowSpan: 5 }, // 🔥 SOLO AQUÍ VA EL rowspan
-          { content: 'FLETES Y MATERIALES FORSIS, S.A. DE C.V.', colSpan: 4, styles: { halign: 'center', textColor: [200,0,0], fontStyle: 'bold' } }
-        ],
-
-        // FILA 2
-        [
-          { content: 'Requisición de Material', colSpan: 4, styles: { halign: 'center' } }
-        ],
-
-        // FILA 3
-        ['FECHA', new Date().toLocaleDateString(), 'PAG.', '1 de 1'],
-
-        // FILA 4
-        ['REVISIÓN', '0', 'CÓDIGO', 'FMF-FOR-ALM-003'],
-
-        // FILA 5
-        ['Fecha de elaboración', new Date().toLocaleDateString(), 'Elaboró:', data[0].solicita_nombre]
+      [
+        { content: '', rowSpan: 5 },
+        { content: 'FLETES Y MATERIALES FORSIS, S.A. DE C.V.', colSpan: 4, styles: { halign: 'center', textColor: [200,0,0], fontStyle: 'bold' } }
       ],
 
-      didDrawCell: function (dataCell) {
+      [
+        { content: 'Entrada de Material', colSpan: 4, styles: { halign: 'center' } }
+      ],
 
-        // 🔥 SOLO dibujar en la celda del rowspan
-        if (dataCell.row.index === 0 && dataCell.column.index === 0) {
+      ['FECHA', new Date(data.fecha).toLocaleDateString(), 'PAG.', '1 de 1'],
 
-          const cell = dataCell.cell;
+      ['REVISIÓN', '0', 'CÓDIGO', 'FMF-FOR-ALM-001'],
 
-          const size = Math.min(cell.width, cell.height) - 4;
+      ['Entrega:', data.entrega_nombre, 'Recibe:', data.recibe_nombre]
+    ],
 
-          doc.addImage(
-            logo,
-            'PNG',
-            cell.x + (cell.width - size) / 2,
-            cell.y + (cell.height - size) / 2,
-            size,
-            size
-          );
-        }
+    didDrawCell: function (dataCell) {
+
+      if (dataCell.row.index === 0 && dataCell.column.index === 0) {
+
+        const cell = dataCell.cell;
+        const size = Math.min(cell.width, cell.height) - 4;
+
+        doc.addImage(
+          logo,
+          'PNG',
+          cell.x + (cell.width - size) / 2,
+          cell.y + (cell.height - size) / 2,
+          size,
+          size
+        );
       }
+    }
 
-    });
+  });
 
-    // ================= DATOS
-    doc.setFontSize(10);
-    doc.text(`Folio: ${data[0].folio}`, 10, doc.lastAutoTable.finalY + 10);
-    doc.text(`Solicita: ${data[0].solicita_nombre}`, 10, doc.lastAutoTable.finalY + 16);
+  // ================= DATOS
 
-    // ================= TABLA PRODUCTOS
-    const rows = data.map(p => [
-      p.sku || '-',   // 👈 por si viene null
-      p.name,
-      p.cantidad
-    ]);
+  doc.setFontSize(10);
+  doc.text(`Folio: ${data.folio}`, 10, doc.lastAutoTable.finalY + 10);
 
-    doc.autoTable({
-      startY: doc.lastAutoTable.finalY + 20,
-      head: [['SKU', 'Producto', 'Cantidad']],
-      body: rows
-    });
+  // ================= TABLA PRODUCTOS
 
-    let y = doc.lastAutoTable.finalY + 30;
+  const rows = data.productos.map(p => [
+    p.name,
+    p.cantidad
+  ]);
 
-    // ================= FIRMA
-    const file = data[0].firma_solicita.split('/').pop();
-    const firma = await loadImage(`/public/get-firma.php?file=${file}`);
+  doc.autoTable({
+    startY: doc.lastAutoTable.finalY + 20,
+    head: [['Producto', 'Cantidad']],
+    body: rows
+  });
 
-    doc.addImage(firma, 'PNG', 20, y, 60, 20);
-    doc.text('Solicita', 30, y + 25);
+  let y = doc.lastAutoTable.finalY + 30;
 
-    doc.text('________________________', 120, y + 15);
-    doc.text('Recibe Compras', 130, y + 25);
-  }
+  // ================= FIRMAS (UNA SOLA VEZ 🔥)
 
-  // 🔥 COPIA 1
-  await renderDocumento();
+  const fileEntrega = data.firma_entrega.split('/').pop();
+  const fileRecibe = data.firma_recibe.split('/').pop();
 
-  // 🔥 NUEVA PÁGINA PARA COPIA 2
-  doc.addPage();
+  const firmaEntrega = await loadImage(`/public/get-firma.php?file=${fileEntrega}`);
+  const firmaRecibe = await loadImage(`/public/get-firma.php?file=${fileRecibe}`);
 
-  // 🔥 COPIA 2
-  await renderDocumento();
+  doc.addImage(firmaEntrega, 'PNG', 20, y, 60, 20);
+  doc.text('Entrega', 35, y + 25);
 
-  doc.save(`requisicion_${data[0].folio}.pdf`);
+  doc.addImage(firmaRecibe, 'PNG', 120, y, 60, 20);
+  doc.text('Recibe', 135, y + 25);
+
+  // ================= EXPORTAR
+
+  doc.save(`entrada_${data.folio}.pdf`);
 };
 
 // ============================
