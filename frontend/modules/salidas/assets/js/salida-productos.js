@@ -364,6 +364,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
       doc.save(`salidas_${new Date().toISOString().slice(0,10)}.pdf`);
     });
+
+        document.getElementById('search-salidas').addEventListener('input', (e) => {
+        const search = e.target.value.toLowerCase();
+
+        const filtered = window.salidasData.filter(salida => {
+
+            return Object.values(salida).some(value => 
+                String(value).toLowerCase().includes(search)
+            );
+
+        });
+
+        if (filtered.length > 0) {
+            displaySalidas(filtered);
+        } else {
+            displayNoSalidas();
+        }
+    });
 });
 
 // Función de autocompletado de producto
@@ -608,11 +626,11 @@ function displaySalidas(salidas) {
 // Función para mostrar el mensaje de "Sin salidas"
 function displayNoSalidas() {
     const tableBody = document.getElementById('tabla-salidas');
-    tableBody.innerHTML = '<tr><td colspan="7" class="p-3 text-center">No hay salidas para el día seleccionado.</td></tr>';
+    tableBody.innerHTML = '<tr><td colspan="8" class="p-3 text-center">No hay salidas para el día seleccionado.</td></tr>';
 }
 
 // Función para ver los detalles de una salida (opcional)
-function verDetalles(salidaId) {
+window.verDetalles = function(salidaId) {
     console.log('Ver detalles de salida con ID:', salidaId);
     // Aquí podrías abrir un modal o una página para mostrar más información
 }
