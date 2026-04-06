@@ -72,6 +72,33 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 // Obtener todas las salidas de productos con los productos relacionados para la fecha seleccionada
 if ($_SERVER['REQUEST_METHOD'] == 'GET') {
 
+    // 🔍 BUSQUEDA GLOBAL
+    if (isset($_GET['search'])) {
+
+        $search = "%" . $_GET['search'] . "%";
+
+        $sql = "
+            SELECT s.*, sp.cantidad, sp.unidad_destino, p.name AS producto_nombre, p.sku AS producto_sku
+            FROM salidas s
+            JOIN salida_productos sp ON s.id = sp.salida_id
+            JOIN products p ON p.id = sp.producto_id
+            WHERE 
+                s.folio LIKE ? OR
+                s.entrega_nombre LIKE ? OR
+                s.recibe_nombre LIKE ? OR
+                sp.unidad_destino LIKE ? OR
+                p.name LIKE ? OR
+                p.sku LIKE ?
+            ORDER BY s.fecha DESC
+        ";
+
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([$search,$search,$search,$search,$search,$search]);
+
+        echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC));
+        exit;
+    }
+
     $fecha = $_GET['fecha'] ?? date('Y-m-d');
 
     $sql = "

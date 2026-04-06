@@ -365,23 +365,37 @@ document.addEventListener('DOMContentLoaded', () => {
       doc.save(`salidas_${new Date().toISOString().slice(0,10)}.pdf`);
     });
 
-        document.getElementById('search-salidas').addEventListener('input', (e) => {
-        const search = e.target.value.toLowerCase();
+    const searchInput = document.getElementById('search-salidas');
 
-        const filtered = window.salidasData.filter(salida => {
+    if (searchInput) {
+        searchInput.addEventListener('input', async (e) => {
 
-            return Object.values(salida).some(value => 
-                String(value).toLowerCase().includes(search)
-            );
+            const search = e.target.value.trim();
 
+            // 🔥 SI ESTÁ VACÍO → REGRESA A LA FECHA
+            if (search === '') {
+                const fecha = document.getElementById('fecha').value;
+                fetchSalidas(fecha);
+                return;
+            }
+
+            try {
+                const response = await fetch(`/public/salidas.php?search=${search}`);
+                const data = await response.json();
+
+                window.salidasData = data;
+
+                if (data.length > 0) {
+                    displaySalidas(data);
+                } else {
+                    displayNoSalidas();
+                }
+
+            } catch (error) {
+                console.error('Error en búsqueda:', error);
+            }
         });
-
-        if (filtered.length > 0) {
-            displaySalidas(filtered);
-        } else {
-            displayNoSalidas();
-        }
-    });
+    }
 });
 
 // Función de autocompletado de producto
@@ -584,11 +598,12 @@ async function fetchSalidas(fechaSeleccionada) {
         const salidas = await response.json();
 
         // Verificar si hay salidas
-        if (salidas.length > 0) {
-          window.salidasData = salidas;
-            displaySalidas(salidas);  // Mostrar las salidas si las hay
+        window.salidasData = salidas || [];
+
+        if (window.salidasData.length > 0) {
+            displaySalidas(window.salidasData);
         } else {
-            displayNoSalidas();  // Mostrar mensaje si no hay salidas
+            displayNoSalidas();
         }
     } catch (error) {
         console.error('Error al obtener las salidas:', error);
