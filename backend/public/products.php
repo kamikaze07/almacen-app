@@ -3,8 +3,10 @@
 header("Content-Type: application/json");
 require_once __DIR__ . '/../config/database.php';
 
-$method = $_SERVER['REQUEST_METHOD'];
 
+
+$method = $_SERVER['REQUEST_METHOD'];
+$all = isset($_GET['all']) ? true : false;
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 10;
 $search = isset($_GET['search']) ? trim($_GET['search']) : '';
@@ -77,6 +79,43 @@ if ($method === 'DELETE') {
     $stmt->execute([':id' => $id]);
 
     echo json_encode(["success" => true]);
+    exit;
+}
+
+// ==========================
+// 📄 CATÁLOGO COMPLETO (PDF)
+// ==========================
+if ($method === 'GET' && $all) {
+
+    try {
+
+        $stmt = $pdo->query("
+            SELECT 
+                p.sku,
+                p.name,
+                p.description
+            FROM products p
+            WHERE p.is_active = 1
+            ORDER BY p.name ASC
+        ");
+
+        $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        echo json_encode([
+            "success" => true,
+            "data" => $products
+        ]);
+
+    } catch (PDOException $e) {
+
+        http_response_code(500);
+
+        echo json_encode([
+            "success" => false,
+            "error" => $e->getMessage()
+        ]);
+    }
+
     exit;
 }
 

@@ -294,3 +294,94 @@ function editProduct(id) {
 
     openModal();
 }
+
+async function generatePDF() {
+    try {
+
+        const res = await fetch("/public/products.php?all=true");
+        const result = await res.json();
+
+        const products = result.data;
+
+        const rows = products.map(p => [
+            p.sku,
+            p.name,
+            p.description || "-"
+        ]);
+
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF("p", "mm", "a4");
+
+        const primary = [220, 38, 38];
+
+        const renderPDF = () => {
+
+            // 🧾 HEADER
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(14);
+            doc.setTextColor(...primary);
+            doc.text("CATÁLOGO DE PRODUCTOS", 105, 15, { align: "center" });
+
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(9);
+            doc.setTextColor(100);
+            doc.text("Sistema de Almacén", 105, 21, { align: "center" });
+
+            // 📋 TABLA
+            doc.autoTable({
+                startY: 35,
+                head: [["SKU", "NOMBRE", "DESCRIPCIÓN"]],
+                body: rows,
+                styles: {
+                    fontSize: 8,
+                    cellPadding: 2
+                },
+                headStyles: {
+                    fillColor: primary,
+                    textColor: 255
+                },
+                alternateRowStyles: {
+                    fillColor: [245, 245, 245]
+                },
+                columnStyles: {
+                    0: { cellWidth: 35 },
+                    1: { cellWidth: 60 },
+                    2: { cellWidth: 95 }
+                }
+            });
+
+            // 📄 FOOTER
+            const pageCount = doc.internal.getNumberOfPages();
+
+            for (let i = 1; i <= pageCount; i++) {
+                doc.setPage(i);
+
+                doc.setFontSize(8);
+                doc.setTextColor(150);
+
+                doc.text(`Página ${i} de ${pageCount}`, 105, 290, { align: "center" });
+                doc.text(`Generado: ${new Date().toLocaleString()}`, 10, 290);
+            }
+
+            doc.save("catalogo_productos.pdf");
+        };
+
+        // 🔥 LOGO
+        const logo = new Image();
+        logo.src = "/assets/logo.png";
+
+        logo.onload = () => {
+            doc.addImage(logo, "PNG", 10, 10, 25, 25);
+            renderPDF();
+        };
+
+        logo.onerror = () => {
+            console.warn("Logo no cargó");
+            renderPDF();
+        };
+
+    } catch (err) {
+        console.error("Error generando PDF:", err);
+    }
+}
+window.generatePDF = generatePDF;

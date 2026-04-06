@@ -23,6 +23,13 @@
                     class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg">
                     + Nuevo producto
                 </button>
+
+                <button 
+                    onclick="generatePDF()" 
+                    class="bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-md"
+                >
+                    📄 Generar catálogo
+                </button>
             </div>
 
             <div class="mb-4">
@@ -135,6 +142,9 @@
 
     </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.5.31/dist/jspdf.plugin.autotable.min.js"></script>
 
     <script type="module">
         import { checkAuth } from "/assets/js/core/auth.js";
