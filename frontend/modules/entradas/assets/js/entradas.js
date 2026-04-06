@@ -265,10 +265,10 @@ async function cargarRequisiciones() {
 
     selectedRequisicionId = e.target.value;
 
-    const res = await fetch(`/public/requisiciones.php?id=${selectedRequisicionId}`);
+    const res = await fetch(`/public/requisicion-detalle.php?id=${selectedRequisicionId}`);
     const json = await res.json();
 
-    productosSeleccionados = json.data.productos.map(p => ({
+    productosSeleccionados = json.data.map(p => ({
       producto_id: p.producto_id,
       name: p.name,
       cantidad: p.cantidad
