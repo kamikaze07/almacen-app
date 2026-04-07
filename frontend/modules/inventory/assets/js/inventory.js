@@ -14,7 +14,23 @@ let currentSort = {
 };
 
 document.addEventListener("DOMContentLoaded", () => {
+
     loadInventory();
+
+    // 🔥 BOTÓN NUEVO PRODUCTO
+    document.getElementById("btnCreate").addEventListener("click", () => {
+        editingId = null;
+
+        const form = document.getElementById("productForm");
+        form.reset();
+
+        openModal();
+    });
+
+    // 🔥 BOTONES MODAL
+    document.getElementById("closeModal").addEventListener("click", closeModal);
+    document.getElementById("cancelBtn").addEventListener("click", closeModal);
+
 });
 
 // ==========================
@@ -43,7 +59,9 @@ async function loadInventory(page = 1) {
             min_stock: p.min_stock !== null ? Number(p.min_stock) : null,
             max_stock: p.max_stock !== null ? Number(p.max_stock) : null,
             type: p.type,
-            unit: p.unit
+            type_id: p.type_id, // 🔥 ESTE ES CLAVE
+            unit: p.unit,
+            unit_id: p.unit_id // 🔥 necesario
         }));
 
         // 🔥 USAR LOS DATOS YA LIMPIOS
@@ -54,7 +72,7 @@ async function loadInventory(page = 1) {
             stock: Number(p.stock),
             min_stock: p.min_stock !== null ? Number(p.min_stock) : null,
             max_stock: p.max_stock !== null ? Number(p.max_stock) : null,
-            type: mapType(p.type),
+            type: p.type,
             unit: p.unit,
             description: p.description || ""
         }));
@@ -128,6 +146,9 @@ function mapType(type) {
 // ==========================
 // 🧾 RENDER TABLE
 // ==========================
+// ==========================
+// 🧾 RENDER TABLE (ACTUALIZADO)
+// ==========================
 function renderTable(products) {
     const table = document.getElementById("inventoryTable");
     table.innerHTML = "";
@@ -135,18 +156,45 @@ function renderTable(products) {
     products.forEach(p => {
 
         const tr = document.createElement("tr");
-        tr.className = "border-b border-gray-800 hover:bg-gray-800";
+
+        tr.className = `
+            border-b border-gray-800 
+            even:bg-gray-900 
+            odd:bg-gray-950 
+            hover:bg-gray-800 
+            transition-all duration-200 
+            hover:-translate-y-1 
+            hover:shadow-lg
+        `;
 
         tr.innerHTML = `
-            <td class="p-3 font-medium">
+            <td class="p-3 font-medium"
+                ondblclick="enableEdit(this, ${p.id}, 'name')">
                 ${p.name}
-                ${p.min_stock !== null ? '<span class="ml-1 text-xs text-gray-500">⚙️</span>' : ''}
             </td>
-            <td class="p-3 text-gray-400">${p.sku}</td>
-            <td class="p-3">${renderType(p.type)}</td>
-            <td class="p-3 text-gray-300">${p.unit}</td>
-            <td class="p-3">${renderStock(p.stock, p.min_stock, p.max_stock)}</td>
-            <td class="p-3 text-gray-400 truncate max-w-xs">
+
+            <td class="p-3 text-gray-400"
+                ondblclick="enableEdit(this, ${p.id}, 'sku')">
+                ${p.sku}
+            </td>
+
+            <td class="p-3"
+                ondblclick="enableEdit(this, ${p.id}, 'type')">
+                ${renderType(p.type)}
+            </td>
+
+            <td class="p-3 text-gray-300"
+                ondblclick="enableEdit(this, ${p.id}, 'unit')">
+                ${p.unit}
+            </td>
+
+            <td class="p-3"
+                ondblclick="enableEdit(this, ${p.id}, 'stock')">
+                ${renderStock(p.stock, p.min_stock, p.max_stock)}
+            </td>
+
+            <td class="p-3 text-gray-400 truncate max-w-xs"
+                ondblclick="enableEdit(this, ${p.id}, 'description')">
                 ${p.description || "-"}
             </td>
         `;
@@ -156,20 +204,15 @@ function renderTable(products) {
 
         const editBtn = document.createElement("button");
         editBtn.textContent = "Editar";
-        editBtn.className = "bg-blue-600 px-3 py-1 text-xs rounded hover:bg-blue-500";
+        editBtn.className = "bg-blue-600 px-3 py-1 text-xs rounded";
         editBtn.onclick = () => editProduct(p.id);
 
         const deleteBtn = document.createElement("button");
         deleteBtn.textContent = "Eliminar";
-        deleteBtn.className = "bg-red-600 px-3 py-1 text-xs rounded hover:bg-red-500";
+        deleteBtn.className = "bg-red-600 px-3 py-1 text-xs rounded";
         deleteBtn.onclick = () => deleteProduct(p.id);
 
-        const configBtn = document.createElement("button");
-        configBtn.innerHTML = "⚙️";
-        configBtn.className = "text-gray-400 hover:text-white";
-        configBtn.onclick = () => openConfigModal(p.id);
-
-        actionsTd.append(editBtn, deleteBtn, configBtn);
+        actionsTd.append(editBtn, deleteBtn);
         tr.appendChild(actionsTd);
 
         table.appendChild(tr);
@@ -259,7 +302,7 @@ document.getElementById("configForm").addEventListener("submit", async (e) => {
         name: product.name,
         description: product.description,
         stock: product.stock,
-        product_type_id: 1,
+        product_type_id: parseInt(form.type.value),
         unit_id: 1,
         min_stock: min === "" ? null : parseInt(min),
         max_stock: max === "" ? null : parseInt(max)
@@ -333,8 +376,8 @@ document.getElementById("productForm").addEventListener("submit", async (e) => {
         name: form.name.value,
         description: form.description.value,
         stock: parseInt(form.stock.value),
-        product_type_id: 1,
-        unit_id: 1,
+        product_type_id: parseInt(form.type.value),
+        unit_id: parseInt(form.unit.value),
 
         min_stock: editingId ? product?.min_stock ?? null : null,
         max_stock: editingId ? product?.max_stock ?? null : null
@@ -357,11 +400,14 @@ document.getElementById("productForm").addEventListener("submit", async (e) => {
 // 🧠 TYPE BADGE
 // ==========================
 function renderType(type) {
+
     let color = "bg-gray-600";
 
-    if (type === "material") color = "bg-blue-600";
-    if (type === "herramienta") color = "bg-purple-600";
-    if (type === "consumible") color = "bg-orange-500";
+    const t = type?.toUpperCase().trim();
+
+    if (t === "ALMACENABLE") color = "bg-blue-600";
+    if (t === "SERVICIO") color = "bg-purple-600";
+    if (t === "CONSUMIBLE") color = "bg-orange-500";
 
     return `<span class="${color} px-2 py-1 rounded text-xs">${type}</span>`;
 }
@@ -390,6 +436,8 @@ function editProduct(id) {
     form.name.value = product.name;
     form.description.value = product.description || "";
     form.stock.value = product.stock;
+    form.type.value = product.type_id;
+    form.unit.value = product.unit_id
 
     openModal();
 }
@@ -424,3 +472,127 @@ function updateSortIcons() {
         el.textContent = getSortIcon(f);
     });
 }
+
+let editingCell = null;
+
+window.enableEdit = function(td, id, field) {
+
+    if (editingCell) return;
+
+    editingCell = td;
+
+    const product = currentProducts.find(p => p.id == id);
+    let input;
+
+    // ==========================
+    // INPUTS
+    // ==========================
+    if (["name", "sku"].includes(field)) {
+        input = document.createElement("input");
+        input.type = "text";
+        input.value = product[field] || "";
+    }
+
+    if (field === "stock") {
+        input = document.createElement("input");
+        input.type = "number";
+        input.value = product.stock;
+    }
+
+    if (field === "description") {
+        input = document.createElement("textarea");
+        input.value = product.description || "";
+    }
+
+    // ==========================
+    // SELECT TYPE
+    // ==========================
+    if (field === "type") {
+        input = document.createElement("select");
+
+        input.innerHTML = `
+            <option value="1">ALMACENABLE</option>
+            <option value="2">CONSUMIBLE</option>
+            <option value="3">SERVICIO</option>
+        `;
+
+        input.value = product.type_id;
+    }
+
+    // ==========================
+    // SELECT UNIT
+    // ==========================
+    if (field === "unit") {
+        input = document.createElement("select");
+
+        input.innerHTML = `
+            <option value="1">PZA</option>
+            <option value="2">L</option>
+            <option value="3">M</option>
+            <option value="4">KG</option>
+            <option value="5">PAR</option>
+            <option value="6">KIT</option>
+            <option value="7">CUB</option>
+            <option value="8">CJ</option>
+        `;
+
+        input.value = product.unit_id;
+    }
+
+    input.className = "w-full bg-gray-800 text-white p-1 rounded";
+
+    td.innerHTML = "";
+    td.appendChild(input);
+    input.focus();
+
+    // ==========================
+    // 💾 SAVE
+    // ==========================
+    const save = async () => {
+
+        let value = input.value;
+
+        const data = {
+            id: product.id,
+            sku: product.sku,
+            name: product.name,
+            description: product.description,
+            stock: product.stock,
+            product_type_id: product.type_id,
+            unit_id: product.unit_id,
+            min_stock: product.min_stock,
+            max_stock: product.max_stock
+        };
+
+        if (field === "name") data.name = value;
+        if (field === "sku") data.sku = value;
+        if (field === "stock") data.stock = parseInt(value);
+        if (field === "description") data.description = value;
+        if (field === "type") data.product_type_id = parseInt(value);
+        if (field === "unit") data.unit_id = parseInt(value);
+
+        await fetch("/public/products.php", {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data)
+        });
+
+        editingCell = null;
+        loadInventory(currentPage);
+    };
+
+    // ==========================
+    // ❌ CANCEL
+    // ==========================
+    const cancel = () => {
+        editingCell = null;
+        loadInventory(currentPage);
+    };
+
+    input.addEventListener("blur", save);
+
+    input.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") save();
+        if (e.key === "Escape") cancel();
+    });
+};

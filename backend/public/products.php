@@ -204,7 +204,9 @@ try {
             p.stock,
             p.min_stock,
             p.max_stock,
+            u.id AS unit_id,
             u.abbreviation AS unit,
+            pt.id AS type_id,
             pt.name AS type
         FROM products p
         JOIN units u ON p.unit_id = u.id
