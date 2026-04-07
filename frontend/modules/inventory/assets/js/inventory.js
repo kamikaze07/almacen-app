@@ -8,6 +8,11 @@ let currentProducts = [];
 const modal = document.getElementById("productModal");
 const configModal = document.getElementById("configModal");
 
+let currentSort = {
+    field: "sku",
+    direction: "asc"
+};
+
 document.addEventListener("DOMContentLoaded", () => {
     loadInventory();
 });
@@ -20,8 +25,9 @@ async function loadInventory(page = 1) {
     currentPage = page;
 
     try {
+
         const res = await fetch(
-            `/public/products.php?page=${page}&limit=${limit}&search=${encodeURIComponent(currentSearch)}`
+            `/public/products.php?page=${page}&limit=${limit}&search=${encodeURIComponent(currentSearch)}&sort=${currentSort.field}&direction=${currentSort.direction}`
         );
 
         const result = await res.json();
@@ -55,6 +61,8 @@ async function loadInventory(page = 1) {
 
         renderTable(products);
         renderPagination(result.pagination);
+
+        updateSortIcons();
 
     } catch (error) {
         console.error("Error cargando inventario:", error);
@@ -384,4 +392,35 @@ function editProduct(id) {
     form.stock.value = product.stock;
 
     openModal();
+}
+
+window.sortBy = function(field) {
+
+    if (currentSort.field === field) {
+        // 🔁 invertir dirección
+        currentSort.direction = currentSort.direction === "asc" ? "desc" : "asc";
+    } else {
+        currentSort.field = field;
+        currentSort.direction = "asc";
+    }
+
+    loadInventory(1);
+}
+
+function getSortIcon(field) {
+    if (currentSort.field !== field) return "";
+
+    return currentSort.direction === "asc" ? " ▲" : " ▼";
+}
+
+function updateSortIcons() {
+
+    const fields = ["name", "sku", "type", "unit", "stock"];
+
+    fields.forEach(f => {
+        const el = document.getElementById(`sort-${f}`);
+        if (!el) return;
+
+        el.textContent = getSortIcon(f);
+    });
 }

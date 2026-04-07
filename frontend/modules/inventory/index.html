@@ -47,11 +47,21 @@
             <table class="w-full text-left">
                 <thead class="bg-gray-800 text-gray-400 text-sm">
                     <tr>
-                        <th class="p-3">Nombre</th>
-                        <th class="p-3">SKU</th>
-                        <th class="p-3">Tipo</th>
-                        <th class="p-3">Unidad</th>
-                        <th class="p-3">Stock</th>
+                        <th class="p-3 cursor-pointer" onclick="sortBy('name')">
+                            Nombre <span id="sort-name"></span>
+                        </th>
+                        <th class="p-3 cursor-pointer" onclick="sortBy('sku')">
+                            SKU <span id="sort-sku"></span>
+                        </th>
+                        <th class="p-3 cursor-pointer" onclick="sortBy('type')">
+                            Tipo <span id="sort-type"></span>
+                        </th>
+                        <th class="p-3 cursor-pointer" onclick="sortBy('unit')">
+                            Unidad <span id="sort-unit"></span>
+                        </th>
+                        <th class="p-3 cursor-pointer" onclick="sortBy('stock')">
+                            Stock <span id="sort-stock"></span>
+                        </th>
                         <th class="p-3">Descripción</th>
                         <th class="p-3 text-right">Acciones</th>
                     </tr>

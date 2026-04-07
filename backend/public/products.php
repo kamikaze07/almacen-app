@@ -9,6 +9,29 @@ $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 10;
 $search = isset($_GET['search']) ? trim($_GET['search']) : '';
 
+$sort = $_GET['sort'] ?? 'sku';
+$direction = $_GET['direction'] ?? 'ASC';
+
+// 🔒 whitelist seguridad
+$allowedSort = ['name', 'sku', 'type', 'unit', 'stock'];
+
+if (!in_array($sort, $allowedSort)) {
+    $sort = 'sku';
+}
+
+$direction = strtoupper($direction) === 'DESC' ? 'DESC' : 'ASC';
+
+// 🔥 MAPEO REAL DE COLUMNAS SQL
+$orderByMap = [
+    'name' => 'p.name',
+    'sku' => 'p.sku',
+    'stock' => 'p.stock',
+    'type' => 'pt.name',
+    'unit' => 'u.abbreviation'
+];
+
+$orderBy = $orderByMap[$sort] ?? 'p.sku';
+
 $offset = ($page - 1) * $limit;
 
 // ==========================
@@ -38,7 +61,7 @@ if ($method === 'POST') {
 }
 
 // ==========================
-// ✏️ UPDATE (incluye config)
+// ✏️ UPDATE
 // ==========================
 if ($method === 'PUT') {
 
@@ -132,7 +155,7 @@ if ($method === 'GET' && $all) {
 // ==========================
 try {
 
-    // 🔍 búsqueda rápida (sin paginación)
+    // 🔍 búsqueda rápida
     if ($search !== '' && !isset($_GET['page'])) {
 
         $stmt = $pdo->prepare("
@@ -162,7 +185,7 @@ try {
         $params[':search'] = "%$search%";
     }
 
-    // 🔢 total
+    // 🔢 TOTAL
     $totalStmt = $pdo->prepare("
         SELECT COUNT(*) as total 
         FROM products p
@@ -171,7 +194,7 @@ try {
     $totalStmt->execute($params);
     $total = $totalStmt->fetch()['total'];
 
-    // 📦 data
+    // 📦 DATA
     $stmt = $pdo->prepare("
         SELECT 
             p.id,
@@ -187,7 +210,7 @@ try {
         JOIN units u ON p.unit_id = u.id
         JOIN product_types pt ON p.product_type_id = pt.id
         $where
-        ORDER BY p.id DESC
+        ORDER BY $orderBy $direction
         LIMIT :limit OFFSET :offset
     ");
 
