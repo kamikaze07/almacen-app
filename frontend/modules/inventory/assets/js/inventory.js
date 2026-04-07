@@ -602,3 +602,105 @@ window.enableEdit = function(td, id, field) {
         if (e.key === "Escape") cancel();
     });
 };
+
+// ==========================
+// 📄 GENERAR CATÁLOGO PRO
+// ==========================
+window.generatePDF = async function () {
+
+    try {
+
+        const res = await fetch("/public/products.php?all=true");
+        const result = await res.json();
+
+        if (!result.success) {
+            alert("Error generando catálogo");
+            return;
+        }
+
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+
+        // ==========================
+        // 🏢 LOGO (BASE64)
+        // ==========================
+        const logo = new Image();
+        logo.src = "/assets/logo.png"; // 👈 ajusta ruta
+
+        await new Promise(resolve => {
+            logo.onload = resolve;
+        });
+
+        doc.addImage(logo, "PNG", 14, 10, 20, 20);
+
+        // ==========================
+        // 🧾 HEADER
+        // ==========================
+        doc.setFontSize(16);
+        doc.text("ALMACÉN - CATÁLOGO DE PRODUCTOS", 40, 18);
+
+        doc.setFontSize(10);
+        const fecha = new Date().toLocaleString();
+        doc.text(`Generado: ${fecha}`, 40, 24);
+
+        // ==========================
+        // 📊 DATA CON COLORES
+        // ==========================
+        const rows = result.data.map(p => {
+
+            const stock = Number(p.stock || 0);
+
+            let stockColor = [34, 197, 94]; // verde
+
+            if (stock <= 5) stockColor = [220, 38, 38]; // rojo
+            else if (stock <= 20) stockColor = [234, 179, 8]; // amarillo
+
+            return {
+                sku: p.sku,
+                name: p.name,
+                description: p.description || "-",
+                stock,
+                stockColor
+            };
+        });
+
+        // ==========================
+        // 📋 TABLA
+        // ==========================
+        doc.autoTable({
+            startY: 35,
+            head: [["SKU", "Nombre", "Stock", "Descripción"]],
+            body: rows.map(r => [
+                r.sku,
+                r.name,
+                r.stock,
+                r.description
+            ]),
+            styles: {
+                fontSize: 9,
+                cellPadding: 3
+            },
+            headStyles: {
+                fillColor: [30, 41, 59] // gris oscuro
+            },
+            didParseCell: function (data) {
+
+                if (data.column.index === 2 && data.section === "body") {
+                    const row = rows[data.row.index];
+
+                    data.cell.styles.fillColor = row.stockColor;
+                    data.cell.styles.textColor = [255, 255, 255];
+                }
+            }
+        });
+
+        // ==========================
+        // 💾 SAVE
+        // ==========================
+        doc.save("catalogo_productos.pdf");
+
+    } catch (error) {
+        console.error("Error PDF:", error);
+        alert("Error al generar PDF");
+    }
+};

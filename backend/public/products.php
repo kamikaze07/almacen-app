@@ -115,7 +115,6 @@ if ($method === 'DELETE') {
     echo json_encode(["success" => true]);
     exit;
 }
-
 // ==========================
 // 📄 CATÁLOGO COMPLETO
 // ==========================
@@ -127,10 +126,11 @@ if ($method === 'GET' && $all) {
             SELECT 
                 p.sku,
                 p.name,
-                p.description
+                p.description,
+                p.stock  -- 🔥 AGREGA ESTO
             FROM products p
             WHERE p.is_active = 1
-            ORDER BY p.name ASC
+            ORDER BY p.sku ASC
         ");
 
         echo json_encode([
