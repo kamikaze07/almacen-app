@@ -3,8 +3,6 @@
 header("Content-Type: application/json");
 require_once __DIR__ . '/../config/database.php';
 
-
-
 $method = $_SERVER['REQUEST_METHOD'];
 $all = isset($_GET['all']) ? true : false;
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
@@ -13,6 +11,9 @@ $search = isset($_GET['search']) ? trim($_GET['search']) : '';
 
 $offset = ($page - 1) * $limit;
 
+// ==========================
+// ➕ CREATE
+// ==========================
 if ($method === 'POST') {
 
     $data = json_decode(file_get_contents("php://input"), true);
@@ -36,6 +37,9 @@ if ($method === 'POST') {
     exit;
 }
 
+// ==========================
+// ✏️ UPDATE (incluye config)
+// ==========================
 if ($method === 'PUT') {
 
     $data = json_decode(file_get_contents("php://input"), true);
@@ -48,7 +52,9 @@ if ($method === 'PUT') {
             description = :description,
             product_type_id = :type,
             unit_id = :unit,
-            stock = :stock
+            stock = :stock,
+            min_stock = :min_stock,
+            max_stock = :max_stock
         WHERE id = :id
     ");
 
@@ -59,13 +65,18 @@ if ($method === 'PUT') {
         ':description' => $data['description'],
         ':type' => $data['product_type_id'],
         ':unit' => $data['unit_id'],
-        ':stock' => $data['stock']
+        ':stock' => $data['stock'],
+        ':min_stock' => $data['min_stock'] ?? null,
+        ':max_stock' => $data['max_stock'] ?? null
     ]);
 
     echo json_encode(["success" => true]);
     exit;
 }
 
+// ==========================
+// ❌ DELETE
+// ==========================
 if ($method === 'DELETE') {
 
     $id = $_GET['id'] ?? null;
@@ -83,7 +94,7 @@ if ($method === 'DELETE') {
 }
 
 // ==========================
-// 📄 CATÁLOGO COMPLETO (PDF)
+// 📄 CATÁLOGO COMPLETO
 // ==========================
 if ($method === 'GET' && $all) {
 
@@ -99,13 +110,10 @@ if ($method === 'GET' && $all) {
             ORDER BY p.name ASC
         ");
 
-        $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
         echo json_encode([
             "success" => true,
-            "data" => $products
+            "data" => $stmt->fetchAll(PDO::FETCH_ASSOC)
         ]);
-
     } catch (PDOException $e) {
 
         http_response_code(500);
@@ -119,12 +127,12 @@ if ($method === 'GET' && $all) {
     exit;
 }
 
-
+// ==========================
+// 📦 LISTADO + PAGINACIÓN
+// ==========================
 try {
 
-    // =========================
-    // 🔍 BÚSQUEDA RÁPIDA (para entradas)
-    // =========================
+    // 🔍 búsqueda rápida (sin paginación)
     if ($search !== '' && !isset($_GET['page'])) {
 
         $stmt = $pdo->prepare("
@@ -145,7 +153,7 @@ try {
         exit;
     }
 
-    // 🧠 Filtro dinámico
+    // 🧠 filtro dinámico
     $where = "";
     $params = [];
 
@@ -154,7 +162,7 @@ try {
         $params[':search'] = "%$search%";
     }
 
-    // 🔢 TOTAL
+    // 🔢 total
     $totalStmt = $pdo->prepare("
         SELECT COUNT(*) as total 
         FROM products p
@@ -163,7 +171,7 @@ try {
     $totalStmt->execute($params);
     $total = $totalStmt->fetch()['total'];
 
-    // 📦 DATA
+    // 📦 data
     $stmt = $pdo->prepare("
         SELECT 
             p.id,
@@ -171,6 +179,8 @@ try {
             p.name,
             p.description,
             p.stock,
+            p.min_stock,
+            p.max_stock,
             u.abbreviation AS unit,
             pt.name AS type
         FROM products p
@@ -181,7 +191,6 @@ try {
         LIMIT :limit OFFSET :offset
     ");
 
-    // bind search
     foreach ($params as $key => $value) {
         $stmt->bindValue($key, $value);
     }
@@ -191,11 +200,9 @@ try {
 
     $stmt->execute();
 
-    $products = $stmt->fetchAll();
-
     echo json_encode([
         "success" => true,
-        "data" => $products,
+        "data" => $stmt->fetchAll(PDO::FETCH_ASSOC),
         "pagination" => [
             "total" => (int)$total,
             "page" => $page,
@@ -203,7 +210,6 @@ try {
             "totalPages" => ceil($total / $limit)
         ]
     ]);
-
 } catch (PDOException $e) {
 
     http_response_code(500);

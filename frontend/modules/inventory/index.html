@@ -8,97 +8,103 @@
 
 <body class="bg-gray-950 text-white hidden">
 
-    <div class="flex">
+<div class="flex">
 
-        <!-- SIDEBAR -->
-        <div id="sidebar"></div>
+    <!-- SIDEBAR -->
+    <div id="sidebar"></div>
 
-        <!-- CONTENT -->
-        <main class="flex-1 p-6">
+    <!-- CONTENT -->
+    <main class="flex-1 p-6">
 
-            <div class="flex justify-between items-center mb-6">
-                <h1 class="text-2xl font-semibold">Inventario</h1>
+        <!-- HEADER -->
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-semibold">Inventario</h1>
 
+            <div class="flex gap-3">
                 <button id="btnCreate"
                     class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg">
                     + Nuevo producto
                 </button>
 
-                <button 
-                    onclick="generatePDF()" 
-                    class="bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-md"
-                >
+                <button onclick="generatePDF()"
+                    class="bg-green-600 hover:bg-green-500 px-4 py-2 rounded-md">
                     📄 Generar catálogo
                 </button>
             </div>
+        </div>
 
-            <div class="mb-4">
-                <input id="searchInput"
-                    type="text"
-                    placeholder="Buscar producto..."
-                    class="w-full p-2 rounded bg-gray-800 border border-gray-700">
-            </div>
+        <!-- SEARCH -->
+        <div class="mb-4">
+            <input id="searchInput"
+                type="text"
+                placeholder="Buscar producto..."
+                class="w-full p-2 rounded bg-gray-800 border border-gray-700 focus:outline-none focus:border-blue-500">
+        </div>
 
-            <div class="bg-gray-900 rounded-xl overflow-hidden border border-gray-800">
-                <table class="w-full text-left">
-                    <thead class="bg-gray-800 text-gray-400 text-sm">
-                        <tr>
-                            <th class="p-3">Nombre</th>
-                            <th class="p-3">SKU</th>
-                            <th class="p-3">Tipo</th>
-                            <th class="p-3">Unidad</th>
-                            <th class="p-3">Stock</th>
-                            <th class="p-3">Descripción</th>
-                            <th class="p-3 text-right">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody id="inventoryTable"></tbody>
-                </table>
-                <div id="pagination" class="flex justify-center mt-4 space-x-2"></div>
-            </div>
+        <!-- TABLE -->
+        <div class="bg-gray-900 rounded-xl overflow-hidden border border-gray-800">
 
-        </main>
+            <table class="w-full text-left">
+                <thead class="bg-gray-800 text-gray-400 text-sm">
+                    <tr>
+                        <th class="p-3">Nombre</th>
+                        <th class="p-3">SKU</th>
+                        <th class="p-3">Tipo</th>
+                        <th class="p-3">Unidad</th>
+                        <th class="p-3">Stock</th>
+                        <th class="p-3">Descripción</th>
+                        <th class="p-3 text-right">Acciones</th>
+                    </tr>
+                </thead>
 
-    </div>
+                <tbody id="inventoryTable"></tbody>
 
-    <!-- MODAL -->
-<div id="productModal" class="fixed inset-0 bg-black/60 hidden items-center justify-center z-50">
+            </table>
+
+            <!-- PAGINATION -->
+            <div id="pagination" class="flex justify-center p-4 space-x-2"></div>
+
+        </div>
+
+    </main>
+
+</div>
+
+<!-- ========================= -->
+<!-- MODAL PRODUCTO -->
+<!-- ========================= -->
+<div id="productModal"
+     class="fixed inset-0 bg-black/60 hidden items-center justify-center z-50">
 
     <div class="bg-gray-900 w-full max-w-lg rounded-xl p-6 border border-gray-800">
 
-        <!-- HEADER -->
         <div class="flex justify-between items-center mb-4">
-            <h2 class="text-lg font-semibold">Nuevo producto</h2>
+            <h2 class="text-lg font-semibold">Producto</h2>
             <button id="closeModal" class="text-gray-400 hover:text-white">✖</button>
         </div>
 
-        <!-- FORM -->
         <form id="productForm" class="space-y-4">
 
-            <!-- NOMBRE -->
             <div>
-                <label class="text-sm text-gray-400">Nombre del producto</label>
+                <label class="text-sm text-gray-400">Nombre</label>
                 <input name="name" required
                     class="w-full mt-1 p-2 rounded bg-gray-800 border border-gray-700">
             </div>
 
-            <!-- SKU -->
             <div>
                 <label class="text-sm text-gray-400">SKU</label>
                 <input name="sku" required
                     class="w-full mt-1 p-2 rounded bg-gray-800 border border-gray-700">
             </div>
 
-            <!-- CANTIDAD -->
             <div>
                 <label class="text-sm text-gray-400">Cantidad</label>
                 <input type="number" name="stock" required min="0"
                     class="w-full mt-1 p-2 rounded bg-gray-800 border border-gray-700">
             </div>
 
-            <!-- TIPO PRODUCTO -->
             <div>
-                <label class="text-sm text-gray-400">Tipo de producto</label>
+                <label class="text-sm text-gray-400">Tipo</label>
                 <select name="type"
                     class="w-full mt-1 p-2 rounded bg-gray-800 border border-gray-700">
                     <option value="material">Material</option>
@@ -107,9 +113,8 @@
                 </select>
             </div>
 
-            <!-- UNIDAD -->
             <div>
-                <label class="text-sm text-gray-400">Unidad de medida</label>
+                <label class="text-sm text-gray-400">Unidad</label>
                 <select name="unit"
                     class="w-full mt-1 p-2 rounded bg-gray-800 border border-gray-700">
                     <option value="pieza">Pieza</option>
@@ -119,7 +124,6 @@
                 </select>
             </div>
 
-            <!-- DESCRIPCIÓN -->
             <div>
                 <label class="text-sm text-gray-400">Descripción</label>
                 <textarea name="description" rows="3"
@@ -143,35 +147,70 @@
     </div>
 </div>
 
+<!-- ========================= -->
+<!-- MODAL CONFIG -->
+<!-- ========================= -->
+<div id="configModal"
+     class="fixed inset-0 bg-black/60 hidden items-center justify-center z-50">
+
+    <div class="bg-gray-900 w-full max-w-sm rounded-xl p-6 border border-gray-800">
+
+        <h2 class="text-lg font-semibold mb-4">Configurar niveles</h2>
+
+        <form id="configForm" class="space-y-4">
+
+            <input type="hidden" name="id">
+
+            <div>
+                <label class="text-sm text-gray-400">Stock mínimo</label>
+                <input type="number" name="min_stock"
+                    class="w-full mt-1 p-2 rounded bg-gray-800 border border-gray-700">
+            </div>
+
+            <div>
+                <label class="text-sm text-gray-400">Stock máximo</label>
+                <input type="number" name="max_stock"
+                    class="w-full mt-1 p-2 rounded bg-gray-800 border border-gray-700">
+            </div>
+
+            <div class="flex justify-end gap-3 pt-4">
+                <button type="button" id="closeConfigBtn"
+                    class="px-3 py-1 bg-gray-700 rounded">
+                    Cancelar
+                </button>
+
+                <button type="submit"
+                    class="px-3 py-1 bg-blue-600 rounded">
+                    Guardar
+                </button>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+<!-- LIBS -->
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.5.31/dist/jspdf.plugin.autotable.min.js"></script>
 
-    <script type="module">
-        import { checkAuth } from "/assets/js/core/auth.js";
+<!-- AUTH -->
+<script type="module">
+    import { checkAuth, setupLogout } from "/assets/js/core/auth.js";
+    import { renderSidebar } from "/assets/js/components/sidebar.js";
 
-        document.addEventListener("DOMContentLoaded", async () => {
-            await checkAuth();
-            document.body.classList.remove("hidden");
-        });
-    </script>
+    document.addEventListener("DOMContentLoaded", async () => {
+        await checkAuth();
 
-    <script type="module" src="./assets/js/inventory.js" defer></script>
+        document.getElementById("sidebar").innerHTML = renderSidebar("inventory");
 
-    <script type="module">
-        import { checkAuth, setupLogout } from "/assets/js/core/auth.js";
-        import { renderSidebar } from "/assets/js/components/sidebar.js";
+        setupLogout();
 
-        document.addEventListener("DOMContentLoaded", async () => {
-            await checkAuth();
-
-            // 🔥 pintar sidebar
-            document.getElementById("sidebar").innerHTML = renderSidebar("inventory");
-
-            setupLogout();
-
-            document.body.classList.remove("hidden");
-        });
+        document.body.classList.remove("hidden");
+    });
 </script>
+
+<!-- MAIN JS -->
+<script type="module" src="./assets/js/inventory.js"></script>
 
 </body>
 </html>
