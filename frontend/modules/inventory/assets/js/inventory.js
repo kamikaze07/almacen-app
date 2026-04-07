@@ -212,7 +212,13 @@ function renderTable(products) {
         deleteBtn.className = "bg-red-600 px-3 py-1 text-xs rounded";
         deleteBtn.onclick = () => deleteProduct(p.id);
 
-        actionsTd.append(editBtn, deleteBtn);
+        // 🔥 REGRESA ESTE
+        const configBtn = document.createElement("button");
+        configBtn.innerHTML = "⚙️";
+        configBtn.className = "text-gray-400 hover:text-white ml-1";
+        configBtn.onclick = () => openConfigModal(p.id);
+
+        actionsTd.append(editBtn, deleteBtn, configBtn);
         tr.appendChild(actionsTd);
 
         table.appendChild(tr);
@@ -302,8 +308,8 @@ document.getElementById("configForm").addEventListener("submit", async (e) => {
         name: product.name,
         description: product.description,
         stock: product.stock,
-        product_type_id: parseInt(form.type.value),
-        unit_id: 1,
+        product_type_id: product.type_id, // 🔥 FIX
+        unit_id: product.unit_id,         // 🔥 FIX
         min_stock: min === "" ? null : parseInt(min),
         max_stock: max === "" ? null : parseInt(max)
     };
