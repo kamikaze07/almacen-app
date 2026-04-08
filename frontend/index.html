@@ -5,6 +5,7 @@
   <title>Dashboard - Almacén</title>
 
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <script>
     tailwind.config = {
@@ -166,6 +167,24 @@
 
     </div>
 
+    <!-- Charts -->
+    <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 mt-10">
+
+      <!-- Movimientos -->
+      <div class="card">
+        <p class="label mb-4">Entradas vs Salidas</p>
+        <canvas id="movimientosChart"></canvas>
+      </div>
+
+      <!-- Top productos -->
+      <div class="card">
+        <p class="label mb-4">Productos más movidos</p>
+        <canvas id="topProductosChart"></canvas>
+      </div>
+
+    </div>
+    
+
       <!-- Actividad -->
     <div class="mt-10 bg-[#111827] border border-white/5 rounded-2xl p-6">
 
@@ -176,6 +195,22 @@
         <!-- JS lo llena -->
 
       </ul>
+
+    </div>
+
+    <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 mt-10">
+
+      <!-- Productos críticos -->
+      <div class="card">
+        <p class="label mb-4">⚠ Productos con bajo stock</p>
+        <ul id="productosCriticos" class="space-y-3 text-sm"></ul>
+      </div>
+
+      <!-- Requisiciones -->
+      <div class="card">
+        <p class="label mb-4">📋 Requisiciones recientes</p>
+        <ul id="requisiciones" class="space-y-3 text-sm"></ul>
+      </div>
 
     </div>
 

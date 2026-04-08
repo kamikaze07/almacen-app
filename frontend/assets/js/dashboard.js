@@ -24,23 +24,20 @@ function renderUser() {
 async function loadDashboard() {
   try {
 
-    // 🔁 MOCK (luego conectamos backend)
-    const data = {
-      stock_total: 1250,
-      entradas_hoy: 45,
-      salidas_hoy: 30,
-      alertas: 3,
-      actividad: [
-        { tipo: "entrada", mensaje: "+ Tornillos agregados", fecha: "hace 2 min" },
-        { tipo: "salida", mensaje: "- Martillos retirados", fecha: "hace 5 min" },
-        { tipo: "alerta", mensaje: "⚠ Bajo stock en clavos", fecha: "hace 10 min" }
-      ]
-    };
+    const res = await fetch("/public/dashboard.php");
+    const json = await res.json();
+
+    if (!json.success) throw new Error(json.error);
+
+    const data = json;
 
     document.getElementById("stockTotal").textContent = data.stock_total;
     document.getElementById("entradasHoy").textContent = data.entradas_hoy;
     document.getElementById("salidasHoy").textContent = data.salidas_hoy;
     document.getElementById("alertas").textContent = data.alertas;
+    renderCharts(data);
+    renderCriticos(data.productos_criticos);
+    renderRequisiciones(data.requisiciones);
 
     renderActividad(data.actividad);
 
@@ -85,5 +82,85 @@ function renderActividad(items) {
     `;
 
     container.appendChild(li);
+  });
+}
+
+function renderCharts(data) {
+
+  // 📈 Movimientos
+  const ctx1 = document.getElementById("movimientosChart");
+
+  new Chart(ctx1, {
+    type: "line",
+    data: {
+      labels: data.movimientos.labels,
+      datasets: [
+        {
+          label: "Entradas",
+          data: data.movimientos.entradas,
+          borderWidth: 2
+        },
+        {
+          label: "Salidas",
+          data: data.movimientos.salidas,
+          borderWidth: 2
+        }
+      ]
+    }
+  });
+
+  // 📊 Top productos
+  const ctx2 = document.getElementById("topProductosChart");
+
+  new Chart(ctx2, {
+    type: "bar",
+    data: {
+      labels: data.top_productos.map(p => p.nombre),
+      datasets: [{
+        label: "Movimientos",
+        data: data.top_productos.map(p => p.cantidad),
+        borderWidth: 1
+      }]
+    }
+  });
+}
+
+function renderCriticos(items) {
+  const el = document.getElementById("productosCriticos");
+  el.innerHTML = "";
+
+  items.forEach(p => {
+    const li = document.createElement("li");
+
+    li.innerHTML = `
+      <div class="flex justify-between">
+        <span class="text-red-400">${p.nombre}</span>
+        <span class="text-xs text-gray-400">Stock: ${p.stock}</span>
+      </div>
+    `;
+
+    el.appendChild(li);
+  });
+}
+
+function renderRequisiciones(items) {
+  const el = document.getElementById("requisiciones");
+  el.innerHTML = "";
+
+  items.forEach(r => {
+    const color = r.estado === "atendida"
+      ? "text-green-400"
+      : "text-yellow-400";
+
+    const li = document.createElement("li");
+
+    li.innerHTML = `
+      <div class="flex justify-between">
+        <span>${r.folio}</span>
+        <span class="${color}">${r.estado}</span>
+      </div>
+    `;
+
+    el.appendChild(li);
   });
 }
