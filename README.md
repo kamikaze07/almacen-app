@@ -17,12 +17,11 @@
 
 ## 🚀 Overview
 
-**Almacén App** es un sistema diseñado para llevar el control total del inventario de forma rápida, intuitiva y centralizada.
+**Almacén App** es un sistema diseñado para llevar el control del inventario de forma rápida, intuitiva y centralizada.
 
 - ✔ Registro ágil de movimientos
 - ✔ Firma digital en salidas
 - ✔ Flujo basado en requisiciones
-- ✔ Reportes diarios automáticos
 
 ---
 
@@ -36,16 +35,18 @@
 
 ### ⚙️ Backend
 
-- PHP (Arquitectura modular)
+- PHP (API modular)
+- Composer
 
 ### 🗄️ Base de Datos
 
 - MySQL
 
-### 🐳 DevOps
+### 🐳 Infraestructura
 
 - Docker
 - Docker Compose
+- Nginx
 
 ---
 
@@ -65,19 +66,31 @@ graph TD
 ```bash
 almacen-app/
 │
-├── modules/
-│   ├── inventario/
-│   ├── entradas/
-│   ├── salidas/
-│   └── requisiciones/
+├── backend/
+│   ├── auth/
+│   ├── config/
+│   ├── firmas/
+│   ├── public/
+│   ├── scripts/
+│   └── vendor/
 │
-├── config/
-│   └── database.php
+├── frontend/
+│   ├── assets/
+│   ├── auth/
+│   ├── modules/
+│   │   ├── entradas/
+│   │   ├── inventory/
+│   │   ├── requisiciones/
+│   │   └── salidas/
+│   └── index.html
 │
 ├── docker/
-├── assets/
+│   ├── nginx/
+│   └── php/
 │
-└── index.php
+├── docker-compose.yaml
+├── docker-compose.override.yaml
+└── README.md
 ```
 
 ---
@@ -93,11 +106,10 @@ almacen-app/
 
 - Registro rápido tipo flujo manual
 - Firma digital (entrega y recibe)
-- Reporte diario automático (FMF-FOR-ALM-002)
 
 ### 📋 Requisiciones
 
-- Solicitud → aprobación → entrada
+- Flujo: solicitud → aprobación → entrada
 
 ### 📊 Inventario
 
@@ -121,30 +133,31 @@ cd almacen-app
 docker-compose up -d
 ```
 
-### 3. Configuración
+### 3. Acceso
 
-Editar archivo:
-
-```
-config/database.php
-```
+- Frontend: http://localhost
+- Backend: http://localhost/backend/public
 
 ---
 
 ## 🌐 API (Ejemplo)
 
+### Productos
+
+```
+GET /backend/public/products.php
+```
+
 ### Entradas
 
 ```
-GET    /modules/entradas/
-POST   /modules/entradas/
+POST /backend/public/entradas.php
 ```
 
 ### Salidas
 
 ```
-GET    /modules/salidas/
-POST   /modules/salidas/
+POST /backend/public/salidas.php
 ```
 
 ---
@@ -164,7 +177,7 @@ graph LR
 
 | Rama       | Uso                    |
 | ---------- | ---------------------- |
-| main       | Versión estable        |
+| main       | Estable                |
 | develop    | Integración            |
 | production | Deploy                 |
 | feature/\* | Nuevas funcionalidades |
@@ -179,10 +192,10 @@ graph LR
 
 ## 🚧 Estado
 
-Proyecto en evolución constante.
+Proyecto en evolución activa.
 
 ---
 
 <p align="center">
-  ⚡ Hecho para operar rápido. Diseñado para escalar.
+  ⚡ Rápido como papel. Potente como un ERP.
 </p>
