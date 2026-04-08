@@ -1,146 +1,166 @@
-📦 Almacén App
+# 📦 Almacén App
 
-Sistema ERP ligero para gestión de inventarios, entradas, salidas y requisiciones.
+<p align="center">
+  <b>Sistema ERP de Inventario</b><br>
+  Control de entradas, salidas y requisiciones en tiempo real
+</p>
 
-⸻
+<p align="center">
+  <img src="https://img.shields.io/badge/status-active-success?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/backend-PHP-blue?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/frontend-TailwindCSS-38B2AC?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/database-MySQL-orange?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/docker-ready-2496ED?style=for-the-badge" />
+</p>
 
-🚀 Descripción
+---
 
-Almacén App es una plataforma diseñada para optimizar el control de inventarios en tiempo real, permitiendo:
-• Registro de entradas de productos
-• Control de salidas con firmas digitales
-• Gestión de requisiciones
-• Visualización de inventario actualizado
+## 🚀 Overview
 
-⸻
+**Almacén App** es un sistema diseñado para llevar el control total del inventario de forma rápida, intuitiva y centralizada.
 
-🧰 Stack Tecnológico
+✔ Registro ágil de movimientos  
+✔ Firma digital en salidas  
+✔ Flujo basado en requisiciones  
+✔ Reportes diarios automáticos
 
-💻 Frontend
-• HTML5
-• TailwindCSS
-• JavaScript (Vanilla)
+---
 
-⚙️ Backend
-• PHP (API REST)
+## 🧰 Tech Stack
 
-🗄️ Base de Datos
-• MySQL
+### 🎨 Frontend
 
-🐳 Infraestructura
-• Docker
-• Docker Compose
+- HTML5
+- TailwindCSS
+- JavaScript (Vanilla)
 
-⸻
+### ⚙️ Backend
 
-🧩 Arquitectura
+- PHP (Arquitectura modular)
 
+### 🗄️ Base de Datos
+
+- MySQL
+
+### 🐳 DevOps
+
+- Docker
+- Docker Compose
+
+---
+
+## 🧩 Arquitectura
+
+```mermaid
 graph TD
-A[Usuario] --> B[Frontend]
-B --> C[API PHP]
-C --> D[MySQL]
-
-⸻
+    User[👤 Usuario] --> Frontend[🎨 Frontend]
+    Frontend --> API[⚙️ API PHP]
+    API --> DB[(🗄️ MySQL)]
 
 📂 Estructura del Proyecto
-
-alamacen-app/
+almacen-app/
 │
 ├── modules/
-│ ├── inventario/
-│ ├── entradas/
-│ ├── salidas/
-│ ├── requisiciones/
+│   ├── inventario/
+│   ├── entradas/
+│   ├── salidas/
+│   └── requisiciones/
 │
 ├── config/
-│ ├── database.php
+│   └── database.php
 │
 ├── docker/
-│
 ├── assets/
 │
 └── index.php
 
-⸻
-
-🔐 Funcionalidades Clave
+🔥 Funcionalidades
 
 📥 Entradas
-• Registro manual o por requisición
-• Control de productos recibidos
+	•	Registro manual o por requisición
+	•	Control de productos recibidos
 
 📤 Salidas
-• Registro rápido tipo “anotación manual”
-• Firma digital (entrega y recibe)
-• Generación de reportes diarios
+	•	Registro rápido tipo flujo manual
+	•	Firma digital (entrega y recibe)
+	•	Reporte diario automático (FMF-FOR-ALM-002)
 
 📋 Requisiciones
-• Flujo de solicitud → aprobación → entrada
+	•	Solicitud → aprobación → entrada
 
 📊 Inventario
-• Consulta en tiempo real
-• Búsqueda avanzada
+	•	Consulta en tiempo real
+	•	Búsqueda optimizada
 
 ⸻
 
-🧪 Instalación
+⚡ Instalación
 
 1. Clonar repositorio
-
 git clone https://github.com/tu-repo/almacen-app.git
 cd almacen-app
 
-2. Levantar con Docker
-
+2. Levantar entorno
 docker-compose up -d
 
-3. Configurar base de datos
-
-Editar:
-
+3. Configuración
 config/database.php
 
+
 ⸻
 
-🌐 Endpoints API (Ejemplo)
+🌐 API (Ejemplo)
 
 Entradas
-
-GET /modules/entradas/
-POST /modules/entradas/
+GET    /modules/entradas/
+POST   /modules/entradas/
 
 Salidas
+GET    /modules/salidas/
+POST   /modules/salidas/
 
-GET /modules/salidas/
-POST /modules/salidas/
 
 ⸻
 
-🔄 Flujo de Trabajo (Git)
+🔄 Git Flow
 
 graph LR
-A[feature/*] --> B[develop]
-B --> C[main]
-C --> D[production]
+    F[feature/*] --> D[develop]
+    D --> M[main]
+    M --> P[production]
+
 
 ⸻
 
-🧹 Convenciones
+📏 Convenciones
 
-Branches
-• main → estable
-• develop → integración
-• production → despliegue
-• feature/\* → nuevas funcionalidades
+Rama
+Uso
+main
+Versión estable
+develop
+Integración
+production
+Deploy
+feature/*
+Nuevas funcionalidades
+
 
 ⸻
 
-✍️ Autor
+👨‍💻 Autor
 
 Cesar Soto
 
 ⸻
 
-📌 Notas
+🚧 Estado
 
-Proyecto en evolución constante 🚧
+Proyecto en evolución constante.
+
+⸻
+
+<p align="center">
+  ⚡ Hecho para operar rápido. Diseñado para escalar.
+</p>
+```
