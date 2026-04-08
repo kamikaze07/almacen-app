@@ -19,10 +19,10 @@
 
 **Almacén App** es un sistema diseñado para llevar el control total del inventario de forma rápida, intuitiva y centralizada.
 
-✔ Registro ágil de movimientos  
-✔ Firma digital en salidas  
-✔ Flujo basado en requisiciones  
-✔ Reportes diarios automáticos
+- ✔ Registro ágil de movimientos
+- ✔ Firma digital en salidas
+- ✔ Flujo basado en requisiciones
+- ✔ Reportes diarios automáticos
 
 ---
 
@@ -53,11 +53,16 @@
 
 ```mermaid
 graph TD
-    User[👤 Usuario] --> Frontend[🎨 Frontend]
-    Frontend --> API[⚙️ API PHP]
-    API --> DB[(🗄️ MySQL)]
+    User --> Frontend
+    Frontend --> API
+    API --> DB
+```
 
-📂 Estructura del Proyecto
+---
+
+## 📂 Estructura del Proyecto
+
+```bash
 almacen-app/
 │
 ├── modules/
@@ -73,94 +78,111 @@ almacen-app/
 ├── assets/
 │
 └── index.php
+```
 
-🔥 Funcionalidades
+---
 
-📥 Entradas
-	•	Registro manual o por requisición
-	•	Control de productos recibidos
+## 🔥 Funcionalidades
 
-📤 Salidas
-	•	Registro rápido tipo flujo manual
-	•	Firma digital (entrega y recibe)
-	•	Reporte diario automático (FMF-FOR-ALM-002)
+### 📥 Entradas
 
-📋 Requisiciones
-	•	Solicitud → aprobación → entrada
+- Registro manual o por requisición
+- Control de productos recibidos
 
-📊 Inventario
-	•	Consulta en tiempo real
-	•	Búsqueda optimizada
+### 📤 Salidas
 
-⸻
+- Registro rápido tipo flujo manual
+- Firma digital (entrega y recibe)
+- Reporte diario automático (FMF-FOR-ALM-002)
 
-⚡ Instalación
+### 📋 Requisiciones
 
-1. Clonar repositorio
+- Solicitud → aprobación → entrada
+
+### 📊 Inventario
+
+- Consulta en tiempo real
+- Búsqueda optimizada
+
+---
+
+## ⚡ Instalación
+
+### 1. Clonar repositorio
+
+```bash
 git clone https://github.com/tu-repo/almacen-app.git
 cd almacen-app
+```
 
-2. Levantar entorno
+### 2. Levantar entorno
+
+```bash
 docker-compose up -d
+```
 
-3. Configuración
+### 3. Configuración
+
+Editar archivo:
+
+```
 config/database.php
+```
 
+---
 
-⸻
+## 🌐 API (Ejemplo)
 
-🌐 API (Ejemplo)
+### Entradas
 
-Entradas
+```
 GET    /modules/entradas/
 POST   /modules/entradas/
+```
 
-Salidas
+### Salidas
+
+```
 GET    /modules/salidas/
 POST   /modules/salidas/
+```
 
+---
 
-⸻
+## 🔄 Git Flow
 
-🔄 Git Flow
-
+```mermaid
 graph LR
-    F[feature/*] --> D[develop]
-    D --> M[main]
-    M --> P[production]
+    feature --> develop
+    develop --> main
+    main --> production
+```
 
+---
 
-⸻
+## 📏 Convenciones
 
-📏 Convenciones
+| Rama       | Uso                    |
+| ---------- | ---------------------- |
+| main       | Versión estable        |
+| develop    | Integración            |
+| production | Deploy                 |
+| feature/\* | Nuevas funcionalidades |
 
-Rama
-Uso
-main
-Versión estable
-develop
-Integración
-production
-Deploy
-feature/*
-Nuevas funcionalidades
+---
 
+## 👨‍💻 Autor
 
-⸻
+**Cesar Soto**
 
-👨‍💻 Autor
+---
 
-Cesar Soto
-
-⸻
-
-🚧 Estado
+## 🚧 Estado
 
 Proyecto en evolución constante.
 
-⸻
+---
 
 <p align="center">
   ⚡ Hecho para operar rápido. Diseñado para escalar.
 </p>
-```
