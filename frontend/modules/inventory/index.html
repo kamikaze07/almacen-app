@@ -34,12 +34,27 @@
         </div>
 
         <!-- SEARCH -->
-        <div class="mb-4">
-            <input id="searchInput"
-                type="text"
-                placeholder="Buscar producto..."
-                class="w-full p-2 rounded bg-gray-800 border border-gray-700 focus:outline-none focus:border-blue-500">
+    <div class="flex justify-between items-center mb-4">
+
+        <input id="searchInput"
+            type="text"
+            placeholder="Buscar producto..."
+            class="w-full max-w-md p-2 rounded bg-gray-800 border border-gray-700">
+
+        <div class="flex items-center gap-2 text-sm">
+            <span class="text-gray-400">Mostrar:</span>
+
+            <select id="limitSelect"
+                class="bg-gray-800 border border-gray-700 rounded px-2 py-1">
+                <option value="10">10</option>
+                <option value="15">15</option>
+                <option value="25">25</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+            </select>
         </div>
+
+    </div>
 
         <!-- TABLE -->
         <div class="bg-gray-900 rounded-xl overflow-hidden border border-gray-800">
@@ -73,6 +88,21 @@
 
             <!-- PAGINATION -->
             <div id="pagination" class="flex justify-center p-4 space-x-2"></div>
+            <div class="flex justify-center items-center gap-3 pb-4 text-sm">
+
+    <span class="text-gray-400">Ir a página:</span>
+
+    <input id="goToPage"
+        type="number"
+        min="1"
+        class="w-20 p-1 rounded bg-gray-800 border border-gray-700 text-center">
+
+    <button id="goToPageBtn"
+        class="px-2 py-1 bg-blue-600 rounded hover:bg-blue-500">
+        Ir
+    </button>
+
+</div>
 
         </div>
 

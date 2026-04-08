@@ -1,7 +1,7 @@
 console.log("inventory.js cargado 🔥");
 
 let currentPage = 1;
-const limit = 10;
+let limit = 10;
 let currentSearch = "";
 let editingId = null;
 let currentProducts = [];
@@ -31,6 +31,17 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("closeModal").addEventListener("click", closeModal);
     document.getElementById("cancelBtn").addEventListener("click", closeModal);
 
+    document.getElementById("limitSelect").addEventListener("change", (e) => {
+        limit = parseInt(e.target.value);
+        localStorage.setItem("inventory_limit", limit);
+        loadInventory(1);
+    });
+
+    document.getElementById("goToPageBtn").addEventListener("click", goToPage);
+    document.getElementById("goToPage").addEventListener("keydown", (e) => {
+        if (e.key === "Enter") goToPage();
+    });
+
 });
 
 // ==========================
@@ -47,6 +58,8 @@ async function loadInventory(page = 1) {
         );
 
         const result = await res.json();
+
+        window.totalPages = result.pagination.totalPages;
 
         
         // 🔥 NORMALIZAR LOS DATOS AQUÍ
@@ -704,3 +717,19 @@ window.generatePDF = async function () {
         alert("Error al generar PDF");
     }
 };
+
+function goToPage() {
+
+    const input = document.getElementById("goToPage");
+    let page = parseInt(input.value);
+
+    if (isNaN(page)) return;
+
+    // 🔥 evitar negativos
+    if (page < 1) page = 1;
+
+    // 🔥 no pasarse del total
+    if (page > window.totalPages) page = window.totalPages;
+
+    loadInventory(page);
+}
