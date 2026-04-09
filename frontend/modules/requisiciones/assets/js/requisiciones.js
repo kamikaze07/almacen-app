@@ -295,9 +295,11 @@ window.imprimirRequisicion = async function () {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
 
+  const pageHeight = doc.internal.pageSize.height;
+
   const logo = await loadImage('/assets/logo.png');
 
-  // HEADER
+  // ================= HEADER
   doc.autoTable({
     startY: 10,
     theme: 'grid',
@@ -312,17 +314,28 @@ window.imprimirRequisicion = async function () {
     body: [
       [
         { content: '', rowSpan: 5 },
-        { content: 'FLETES Y MATERIALES FORSIS, S.A. DE C.V.', colSpan: 4, styles: { halign: 'center', textColor: [200,0,0], fontStyle: 'bold' } }
+        {
+          content: 'FLETES Y MATERIALES FORSIS, S.A. DE C.V.',
+          colSpan: 4,
+          styles: { halign: 'center', textColor: [200,0,0], fontStyle: 'bold' }
+        }
       ],
       [
         { content: 'Requisición de Material', colSpan: 4, styles: { halign: 'center' } }
       ],
-      ['FECHA', new Date(data[0].created_at).toLocaleDateString(), 'PAG.', '1 de 1'],
+      [
+        'FECHA',
+        new Date(data[0].created_at.replace(' ', 'T')).toLocaleDateString(),
+        'PAG.',
+        '1 de 1'
+      ],
       ['REVISIÓN', '0', 'CÓDIGO', 'FMF-FOR-ALM-003'],
-      ['Solicita:', data[0].solicita_nombre, '', '']
+      ['Solicita:', data[0].solicita_nombre || '-', '', '']
     ],
+
     didDrawCell: function (dataCell) {
       if (dataCell.row.index === 0 && dataCell.column.index === 0) {
+
         const cell = dataCell.cell;
         const size = Math.min(cell.width, cell.height) - 4;
 
@@ -338,11 +351,11 @@ window.imprimirRequisicion = async function () {
     }
   });
 
-  // FOLIO
+  // ================= FOLIO
   doc.setFontSize(10);
   doc.text(`Folio: ${data[0].folio}`, 10, doc.lastAutoTable.finalY + 10);
 
-  // PRODUCTOS
+  // ================= PRODUCTOS
   const rows = data.map(p => [p.name, p.cantidad]);
 
   doc.autoTable({
@@ -351,17 +364,25 @@ window.imprimirRequisicion = async function () {
     body: rows
   });
 
-  let y = doc.lastAutoTable.finalY + 30;
+  // ================= FIRMAS (SIEMPRE ABAJO)
+  const firmaY = pageHeight - 40;
 
-  // FIRMA
+  // Firma solicita (imagen)
   if (data[0].firma_solicita) {
     const file = data[0].firma_solicita.split('/').pop();
     const firma = await loadImage(`/public/get-firma.php?file=${file}`);
 
-    doc.addImage(firma, 'PNG', 20, y, 60, 20);
-    doc.text('Solicita', 35, y + 25);
+    doc.addImage(firma, 'PNG', 20, firmaY - 15, 60, 20);
   }
 
+  doc.line(20, firmaY, 80, firmaY);
+  doc.text('Solicita', 35, firmaY + 5);
+
+  // Firma compras (VACÍA)
+  doc.line(120, firmaY, 180, firmaY);
+  doc.text('Recibe Compras', 130, firmaY + 5);
+
+  // ================= EXPORTAR
   doc.save(`requisicion_${data[0].folio}.pdf`);
 };
 
