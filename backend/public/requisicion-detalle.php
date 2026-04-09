@@ -13,6 +13,7 @@ if (!$id) {
 $stmt = $pdo->prepare("
     SELECT 
         r.folio,
+        r.created_at,
         r.solicita_nombre,
         r.firma_solicita,
         rp.cantidad,
