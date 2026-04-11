@@ -1,7 +1,9 @@
 <?php
+date_default_timezone_set('America/Mexico_City');
 // Conexión a la base de datos
 // Nota: Usar __DIR__ ayuda a evitar problemas con rutas relativas
 require_once __DIR__ . '/../config/database.php';
+$pdo->exec("SET time_zone = '-06:00'");
 
 header('Content-Type: application/json');
 
@@ -42,22 +44,22 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     file_put_contents(__DIR__ . '/' . $firma_recibe_path, base64_decode(explode(',', $firma_recibe_base64)[1]));
 
     // Insertar los productos relacionados con la salida en la tabla 'salida_productos'
-        foreach ($productos as $producto) {
-            $producto_id = $producto['producto_id'];
-            $cantidad = $producto['cantidad'];
-            $unidad_destino = $producto['unidad_destino'];
+    foreach ($productos as $producto) {
+        $producto_id = $producto['producto_id'];
+        $cantidad = $producto['cantidad'];
+        $unidad_destino = $producto['unidad_destino'];
 
-            // 1. Insertar el detalle de la salida
-            $sql_productos = "INSERT INTO salida_productos (salida_id, producto_id, cantidad, unidad_destino) VALUES (?, ?, ?, ?)";
-            $stmt_productos = $pdo->prepare($sql_productos);
-            $stmt_productos->execute([$salida_id, $producto_id, $cantidad, $unidad_destino]);
+        // 1. Insertar el detalle de la salida
+        $sql_productos = "INSERT INTO salida_productos (salida_id, producto_id, cantidad, unidad_destino) VALUES (?, ?, ?, ?)";
+        $stmt_productos = $pdo->prepare($sql_productos);
+        $stmt_productos->execute([$salida_id, $producto_id, $cantidad, $unidad_destino]);
 
-            // 2. NUEVO: Restar la cantidad del stock en la tabla de productos
-            // Asegúrate de que tu tabla se llame 'products' o cámbialo si se llama diferente
-            $sql_restar_stock = "UPDATE products SET stock = stock - ? WHERE id = ?";
-            $stmt_stock = $pdo->prepare($sql_restar_stock);
-            $stmt_stock->execute([$cantidad, $producto_id]);
-        }
+        // 2. NUEVO: Restar la cantidad del stock en la tabla de productos
+        // Asegúrate de que tu tabla se llame 'products' o cámbialo si se llama diferente
+        $sql_restar_stock = "UPDATE products SET stock = stock - ? WHERE id = ?";
+        $stmt_stock = $pdo->prepare($sql_restar_stock);
+        $stmt_stock->execute([$cantidad, $producto_id]);
+    }
 
     // Actualizar la tabla 'salidas' con las rutas de las firmas
     $sql_firmas = "UPDATE salidas SET firma_entrega = ?, firma_recibe = ? WHERE id = ?";
@@ -93,7 +95,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
         ";
 
         $stmt = $pdo->prepare($sql);
-        $stmt->execute([$search,$search,$search,$search,$search,$search]);
+        $stmt->execute([$search, $search, $search, $search, $search, $search]);
 
         echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC));
         exit;
@@ -133,5 +135,3 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
     echo json_encode($salidas);
     exit;
 }
-
-?>
