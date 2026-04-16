@@ -17,6 +17,7 @@ $stmt = $pdo->prepare("
         r.solicita_nombre,
         r.firma_solicita,
         rp.cantidad,
+        rp.producto_id,
         p.name,
         p.sku
     FROM requisiciones r
