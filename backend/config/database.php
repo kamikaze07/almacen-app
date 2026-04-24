@@ -24,6 +24,7 @@ $options = [
 
 try {
     $pdo = new PDO($dsn, $user, $pass, $options);
+    $pdo->exec("SET time_zone = '-06:00'");
 } catch (PDOException $e) {
     http_response_code(500);
 
