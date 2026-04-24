@@ -144,7 +144,7 @@ function renderBloque() {
         json.data.forEach(p => {
         sugerencias.innerHTML += `
             <div class="p-2 hover:bg-gray-700 cursor-pointer"
-                onclick="agregarProducto(${p.id}, '${p.name}')">
+                onclick='agregarProducto(${p.id}, ${JSON.stringify(p.name)})'>
             ${p.name} (${p.sku})
             </div>
         `;
